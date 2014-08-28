@@ -1,5 +1,5 @@
 require 'fileutils'
-
+require 'rspec'
 require 'capybara/poltergeist'
 Capybara.default_driver = :poltergeist
 
@@ -45,9 +45,10 @@ end
 OurHelpers.start_server
 at_exit { OurHelpers.stop_server }
 
-World Module.new {
-  include OurHelpers
-}
+World OurHelpers,
+      RSpec::Expectations,
+      RSpec::Matchers
+
 
 Before do
   server.set :views, views_dir
