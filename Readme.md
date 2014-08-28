@@ -1,3 +1,11 @@
+Getting started
+---------------
+
+```sh
+rake bootstrap
+```
+
+
 Overview
   I want to be able to make ruby-monk style lessons
   e.g. https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/44-collections/lessons/98-iterate-filtrate-and-transform
