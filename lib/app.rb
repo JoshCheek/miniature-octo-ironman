@@ -1,5 +1,5 @@
 require 'sinatra'
 
 get '/lesson1' do
-  erb :lesson1
+  markdown :lesson1
 end
