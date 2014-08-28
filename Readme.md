@@ -10,7 +10,6 @@ Future shit maybe
   maybe scoped by content owner
   maybe overridable language for the editor
 
-
 Goals
   Identify first iteration requirements
   Get started
@@ -86,13 +85,3 @@ Server
     receives the request (in above example, the code and the test suite)
     evaluates the code somehow (should it be aware of evaluation styles?)
     returns the JSON result
-
-
-
-
-
-
-
-
-
-

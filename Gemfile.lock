@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    eval_in (0.1.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  eval_in
