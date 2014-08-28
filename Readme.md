@@ -1,5 +1,24 @@
+Overview
+--------
+
+I want to be able to make ruby-monk style lessons
+e.g. https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/44-collections/lessons/98-iterate-filtrate-and-transform
+This project is to support that.
+
+Workflow
+--------
+
+After we explore a bit:
+
+* pull from issues
+* make a branch to implement the feature
+* send pull request
+* after code review, merge it
+
 Getting started
 ---------------
+
+Install dependencies with
 
 ```sh
 rake bootstrap
@@ -11,28 +30,32 @@ Run tests with
 rake cuke
 ```
 
+Main areas
+----------
 
+* Evaluate code safely with (http://rubygems.org/gems/eval_in)
+* Get a Js editor at (https://duckduckgo.com/?q=ace+editor)
+* Server: [Rack](http://rubygems.org/gems/rack) / [Sinatra](http://rubygems.org/gems/sinatra) / [Rails](http://rubygems.org/gems/rails)
 
-
-
-
-Overview
-  I want to be able to make ruby-monk style lessons
-  e.g. https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/44-collections/lessons/98-iterate-filtrate-and-transform
-  This project is to support that.
-  I already have the hard problem figured out: how do we evaluate user-submitted code? (http://rubygems.org/gems/eval_in)
 
 Future shit maybe
-  manifest of lesson names to git repositories (ie gist)
-    rather than having to edit the source of the server to change a lesson
-  maybe scoped by content owner
-  maybe overridable language for the editor
+-----------------
+
+* manifest of lesson names to git repositories (ie gist) rather than having to edit the source of the server to change a lesson
+* maybe scoped by content owner
+* maybe overridable language for the editor
+
+Iteration 1 goals
+-----------------
+
+* I can embed a Ruby snippet into a markdown page and see an editor
+* I can run the code in the editor and see the output
 
 
-Goals
-  Identify first iteration requirements
-  Get started
+Other shit I wrote down
+-----------------------
 
+```
 Feature: Document with code that prints output
   I want rubymonk style lessons
 
@@ -104,13 +127,4 @@ Server
     receives the request (in above example, the code and the test suite)
     evaluates the code somehow (should it be aware of evaluation styles?)
     returns the JSON result
-
-
-
-
-
-
-
-
-
-
+```
