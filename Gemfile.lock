@@ -43,6 +43,19 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
+    redcarpet (3.1.1)
+    rspec (3.0.0)
+      rspec-core (~> 3.0.0)
+      rspec-expectations (~> 3.0.0)
+      rspec-mocks (~> 3.0.0)
+    rspec-core (3.0.4)
+      rspec-support (~> 3.0.0)
+    rspec-expectations (3.0.4)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.0.0)
+    rspec-mocks (3.0.4)
+      rspec-support (~> 3.0.0)
+    rspec-support (3.0.4)
     sinatra (1.4.5)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -62,4 +75,6 @@ DEPENDENCIES
   launchy
   poltergeist
   pry
+  redcarpet
+  rspec
   sinatra
