@@ -1,4 +1,24 @@
-require 'eval_in'
-<div class='interactive_code'>
-  puts ['a', 'b', 'c'].size
+<script>
+  //When user clicks on submit
+
+   function processingCode() {
+     //We use javascript to grab the text inside interactive code
+      console.log(document.getElementById("interactive_code"))
+   }
+  //We run that code using eval_in
+  //We then call .output on the result of that
+  //We take that output and make it appear in the interactive
+  //code output section
+</script>
+
+<div class>
+  <textarea id= 'interactive_code'>
+    Your code goes here!
+  </textarea>
+  <button type ='submit' onclick="processingCode()">Submit</button>
+</div>
+
+
+<div class='interactive_code_output'>
+  The result of your code is here!
 </div>
