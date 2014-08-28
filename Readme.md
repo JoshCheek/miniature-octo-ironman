@@ -5,6 +5,16 @@ Getting started
 rake bootstrap
 ```
 
+Run tests with
+
+```sh
+rake cuke
+```
+
+
+
+
+
 
 Overview
   I want to be able to make ruby-monk style lessons
