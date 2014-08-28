@@ -8,3 +8,5 @@ desc 'Run cucumber tests'
 task :cuke do
   sh 'bundle exec cucumber'
 end
+
+task default: :cuke
