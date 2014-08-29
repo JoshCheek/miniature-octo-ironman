@@ -1,0 +1,19 @@
+!!!
+%html{:lang => "en"}
+  %head
+    %title ACE in Action
+    %style{:media => "screen", :type => "text/css"}
+      \#editor {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      }
+  %body
+    = yield
+    %script{:charset => "utf-8", :src => "../js/ace.js", :type => "text/javascript"}
+    :javascript
+      var editor = ace.edit("editor");
+      editor.setTheme("ace/theme/monokai");
+      editor.getSession().setMode("ace/mode/javascript");
