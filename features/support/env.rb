@@ -26,7 +26,7 @@ module OurHelpers
   end
 
   def server
-    Sinatra::Application
+    MiniatureOctoIronman
   end
 
   def internet

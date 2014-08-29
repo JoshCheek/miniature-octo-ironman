@@ -1,5 +1,7 @@
-require 'sinatra'
+require 'sinatra/base'
 
-get '/lesson1' do
-  markdown :lesson1
+class MiniatureOctoIronman < Sinatra::Base
+  get '/lesson1' do
+    markdown :lesson1
+  end
 end
