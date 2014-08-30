@@ -26,7 +26,7 @@ Getting started
 Iteration 1 goals
 -----------------
 
-- [ ] I can embed a Ruby snippet into a markdown page and see an editor
+- [X] I can embed a Ruby snippet into a markdown page and see an editor
 - [ ] I can run the code in the editor and see the output (Follow along with progress at #12)
 
 How do I contribute?
