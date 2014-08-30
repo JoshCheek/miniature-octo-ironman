@@ -11,15 +11,15 @@ Getting started
 <table>
   <tr>
     <td> Install dependencies with </td>
-    <td> `rake bootstrap` </td>
+    <td> <code>rake bootstrap<code> </td>
   </tr>
   <tr>
     <td> Run tests with </td>
-    <td> `rake cuke` </td>
+    <td> <code>rake cuke<code> </td>
   </tr>
   <tr>
     <td> Run server with </td>
-    <td> `rake server` (once #11 is done) </td>
+    <td> <code>rake server<code> (once someone does <a href="https://github.com/JoshCheek/miniature-octo-ironman/issues/11"> Rake task for server</a> anyway) </td>
   </tr>
 </table>
 
