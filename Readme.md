@@ -19,7 +19,7 @@ Getting started
   </tr>
   <tr>
     <td> Run server with </td>
-    <td> <code>rake server<code> (once someone does <a href="https://github.com/JoshCheek/miniature-octo-ironman/issues/11"> Rake task for server</a> anyway) </td>
+    <td> <code>rake server</code> (once someone does <a href="https://github.com/JoshCheek/miniature-octo-ironman/issues/11"> Rake task for server</a> anyway) </td>
   </tr>
 </table>
 
