@@ -8,9 +8,11 @@ This project is to support that.
 Getting started
 ---------------
 
+|---------------------------|----------------------------------|
 | Install dependencies with | `rake bootstrap`                 |
 | Run tests with            | `rake cuke`                      |
 | Run server with           | `rake server` (once #11 is done) |
+|---------------------------|----------------------------------|
 
 Iteration 1 goals
 -----------------
