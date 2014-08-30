@@ -37,7 +37,7 @@ How do I contribute?
   * Sub issues of #12 would be super helpful :)
   * Also, #2, #11, and #17 are small
 * Make a branch to implement the feature
-* If it needs tests, make sure it is tested, either way, make sure it doesn't break existing tests, we are currently passing through [this](https://github.com/JoshCheek/miniature-octo-ironman/blob/master/features/omg.feature#L15) step
+* If it needs tests, make sure it is tested, either way, make sure it doesn't break existing tests, we are currently passing through [this](https://github.com/JoshCheek/miniature-octo-ironman/blob/b308eb4fff2734dd79963471283681cd6e829bbe/features/omg.feature#L15) step
 * Send pull request
 * After code review, merge it
 * Delete the branch
