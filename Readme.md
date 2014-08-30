@@ -11,11 +11,11 @@ Getting started
 <table>
   <tr>
     <td> Install dependencies with </td>
-    <td> <code>rake bootstrap<code> </td>
+    <td> <code>rake bootstrap</code> </td>
   </tr>
   <tr>
     <td> Run tests with </td>
-    <td> <code>rake cuke<code> </td>
+    <td> <code>rake cuke</code> </td>
   </tr>
   <tr>
     <td> Run server with </td>
