@@ -8,11 +8,20 @@ This project is to support that.
 Getting started
 ---------------
 
-|---------------------------|----------------------------------|
-| Install dependencies with | `rake bootstrap`                 |
-| Run tests with            | `rake cuke`                      |
-| Run server with           | `rake server` (once #11 is done) |
-|---------------------------|----------------------------------|
+<table>
+  <tr>
+    <td> Install dependencies with </td>
+    <td> `rake bootstrap` </td>
+  </tr>
+  <tr>
+    <td> Run tests with </td>
+    <td> `rake cuke` </td>
+  </tr>
+  <tr>
+    <td> Run server with </td>
+    <td> `rake server` (once #11 is done) </td>
+  </tr>
+</table>
 
 Iteration 1 goals
 -----------------
