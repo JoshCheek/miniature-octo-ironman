@@ -2,6 +2,12 @@ require 'fileutils'
 require 'rspec'
 require 'capybara/poltergeist'
 Capybara.default_driver = :poltergeist
+Capybara.register_driver :poltergeist do |app|
+  options = {
+    js_errors: false
+  }
+  Capybara::Poltergeist::Driver.new(app, options)
+end
 
 $LOAD_PATH.unshift '../../../lib', __FILE__
 require 'app'
