@@ -34,11 +34,14 @@ module OurHelpers
   end
 
   def start_server
-    OurHelpers.server_thread = Thread.new { OurHelpers.server.run! }
+   require 'webrick'
+   OurHelpers.server_thread = Thread.new {
+     Rack::Server.start app: OurHelpers.server.new, Port: 1235, server: 'webrick', AccessLog: [] , Logger: WEBrick::Log.new(StringIO.new)
+   }
   end
 
   def stop_server
-    OurHelpers.server_thread && OurHelpers.server_thread.kill("INT")
+      OurHelpers.server_thread && OurHelpers.server_thread.kill
   end
 end
 
@@ -61,7 +64,8 @@ Given 'I have a document "$name":' do |name, body|
 end
 
 When 'I visit "$path"' do |path|
-  internet.visit "http://localhost:4567#{path}"
+  require 'redcarpet'
+  internet.visit "http://localhost:1235#{path}"
 end
 
 Then 'my page has "$content" on it' do |content|
