@@ -2,6 +2,8 @@ require 'sinatra/base'
 require 'redcarpet'
 require 'haml'
 
+Haml::Options.defaults[:ugly] = true
+
 class MiniatureOctoIronman < Sinatra::Base
   set :markdown, layout_engine: :haml, layout: :layout
 
@@ -10,6 +12,6 @@ class MiniatureOctoIronman < Sinatra::Base
   end
 
   get '/editor' do
-    erb :editor
+    haml :editor
   end
 end
