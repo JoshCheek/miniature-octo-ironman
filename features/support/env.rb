@@ -28,8 +28,8 @@ module OurHelpers
   end
 
   def copy_views
-    root_path = File.expand_path '../../..', __FILE__#"/Users/allisonlarson/rails_projects/miniature-octo-ironman"
-
+    root_path = File.expand_path '../../..', __FILE__
+    
     view_files = Dir[root_path +"/lib/views/*"]
 
     view_files.each do |view_file|
