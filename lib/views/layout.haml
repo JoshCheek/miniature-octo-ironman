@@ -12,7 +12,7 @@
       }
   %body
     = yield
-    %script{:charset => "utf-8", :src => "../../js/ace.js", :type => "text/javascript"}
+    %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
     :javascript
       var editor = ace.edit("editor");
       editor.setTheme("ace/theme/monokai");
