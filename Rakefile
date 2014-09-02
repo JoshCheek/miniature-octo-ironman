@@ -9,4 +9,9 @@ task :cuke do
   sh 'bundle exec cucumber'
 end
 
+desc 'Start the server'
+task :server do
+  sh 'bundle exec rackup'
+end
+
 task default: :cuke
