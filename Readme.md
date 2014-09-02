@@ -26,7 +26,7 @@ Getting started
 Iteration 1 goals
 -----------------
 
-- [X] I can embed a Ruby snippet into a markdown page and see an editor
+- [ ] I can embed a Ruby snippet into a markdown page and see an editor
 - [ ] I can run the code in the editor and see the output (Follow along with progress at #12)
 
 How do I contribute?
@@ -36,12 +36,20 @@ How do I contribute?
   * Look for one that is not assigned
   * Sub issues of [#12][issue12] would be super helpful :)
   * Also, [#2][issue2], [#11][issue11], and [#17][issue17] are small
-* Make a branch to implement the feature
-* If it needs tests, make sure it is tested, either way, make sure it doesn't break existing tests, we are currently passing through [this](https://github.com/JoshCheek/miniature-octo-ironman/blob/b308eb4fff2734dd79963471283681cd6e829bbe/features/omg.feature#L15) step
-* Send pull request (from your branch to master, if you have commit rights, or from your repo to our master if you don't)
-* After code review, merge it
-* Delete the branch
+* Try to work in small steps that you can push up to master without breaking tests
+* Make sure any relevant behaviour is tested, so we don't break your shit when we change it (we'll do the same for you, so you can change our shit without fear)
+* In any relevant commits, mention the issue number (e.g. [#17](issue17)), they will automatically be associated with the issue ([more on linking](https://help.github.com/articles/writing-on-github#references))
+* When your commits are adequate to complete your story, ask for a code review.
 
+Philosophy of collaboration
+---------------------------
+
+* Change anything you want (try to understand why it is the way it is, ask others if you need context)
+* Try to work in small enough steps that you can push them multiple times per day (ideally, you can push after each commit, though you don't necessarily)
+* Everyone's local master should be hovering around origin/master so that all changes are small with low likelihood of conflict, and everyone has as much of everyone else's work as possible, so that no one is being held up by unmerged features.
+* Have reasonable tests on your features so we know if we break them. If you're having difficulty knowing what or how to do this, come ask.
+* Never push failing tests to master, you'll break everyone else's ability to work on their thing, they'll have to deal with your failure.
+* See a problem? Fix it. Have an idea? Open an issue.
 
 Future shit maybe
 -----------------
