@@ -2,6 +2,12 @@ require 'fileutils'
 require 'rspec'
 require 'capybara/poltergeist'
 Capybara.default_driver = :poltergeist
+Capybara.register_driver :poltergeist do |app|
+  options = {
+    js_errors: false
+  }
+  Capybara::Poltergeist::Driver.new(app, options)
+end
 
 $LOAD_PATH.unshift '../../../lib', __FILE__
 require 'app'
@@ -18,6 +24,17 @@ module OurHelpers
       dir = File.expand_path '../../../tmp', __FILE__
       FileUtils.mkdir_p dir
       dir
+    end
+  end
+
+  def copy_views
+    root_path = File.expand_path '../../..', __FILE__#"/Users/allisonlarson/rails_projects/miniature-octo-ironman"
+
+    view_files = Dir[root_path +"/lib/views/*"]
+
+    view_files.each do |view_file|
+     filename = File.basename view_file
+     FileUtils.cp view_file, path_to_view(filename)
     end
   end
 
@@ -54,8 +71,10 @@ World OurHelpers,
 
 
 Before do
+  copy_views
   server.set :views, views_dir
 end
+
 
 Given 'I have a document "$name":' do |name, body|
   # internet.visit "http://localhost:4567/a"
