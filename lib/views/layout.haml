@@ -9,11 +9,15 @@
   %body
     = yield
     %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
+    %button.run
+      Run
     :javascript
       codeElements = document.querySelectorAll('.interactive-code');
+      var button = document.createElement('button');
       for(var index=0; index < codeElements.length; ++index) {
         var codeElement = codeElements[index]
         var editor      = ace.edit(codeElement);
+        var code = editor.getValue(codeElement);
         editor.setTheme("ace/theme/monokai");
         editor.setOptions({maxLines: 100});
         editor.getSession().setMode("ace/mode/ruby");
