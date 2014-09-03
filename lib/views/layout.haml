@@ -3,17 +3,18 @@
   %head
     %title ACE in Action
     :css
-      #editor {
-        position: absolute;
-        top:      0;
-        right:    0;
-        bottom:   0;
-        left:     0;
+      .interactive-code {
+        position:   relative;
       }
   %body
     = yield
     %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
     :javascript
-      var editor = ace.edit("editor");
-      editor.setTheme("ace/theme/monokai");
-      editor.getSession().setMode("ace/mode/javascript");
+      codeElements = document.querySelectorAll('.interactive-code');
+      for(var index=0; index < codeElements.length; ++index) {
+        var codeElement = codeElements[index]
+        var editor      = ace.edit(codeElement);
+        editor.setTheme("ace/theme/monokai");
+        editor.setOptions({maxLines: 100});
+        editor.getSession().setMode("ace/mode/ruby");
+      }

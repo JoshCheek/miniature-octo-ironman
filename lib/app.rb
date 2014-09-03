@@ -10,8 +10,4 @@ class MiniatureOctoIronman < Sinatra::Base
   get '/lesson1' do
     markdown :lesson1
   end
-
-  get '/editor' do
-    haml :editor
-  end
 end
