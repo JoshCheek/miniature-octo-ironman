@@ -7,5 +7,5 @@ Hey, here's how to use size
 Hey, here's how to use size
 
 <div class="interactive-code">
-  puts ['a', 'b', 'c'].size
+  %w[o m g].size
 </div>
