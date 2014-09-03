@@ -8,11 +8,11 @@ Feature: Document with code that prints output
     Hey, here's how to use size
 
     <div class="interactive-code">
-      puts ['a', 'b', 'c'].size
+      p ['a', 'b', 'c']
     </div>
     """
     When I visit "/lesson1"
     Then my page has "how to use size" on it
-    And my page has an editor with "puts ['a', 'b', 'c'].size"
+    And my page has an editor with "p ['a', 'b', 'c']"
     When I submit the code in editor 1
-    Then I see an output box with "3" in it
+    Then I see an output box with "a\nb\nc" in it
