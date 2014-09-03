@@ -26,7 +26,7 @@ Getting started
 Iteration 1 goals
 -----------------
 
-- [ ] I can embed a Ruby snippet into a markdown page and see an editor
+- [X] I can embed a Ruby snippet into a markdown page and see an editor
 - [ ] I can run the code in the editor and see the output (Follow along with progress at #12)
 
 How do I contribute?
@@ -35,7 +35,7 @@ How do I contribute?
 * Pick an [issue](https://github.com/JoshCheek/miniature-octo-ironman/issues):
   * Look for one that is not assigned
   * Sub issues of [#12][issue12] would be super helpful :)
-  * Also, [#2][issue2], [#11][issue11], and [#17][issue17] are small
+  * Also [#17][issue17] is small.
 * Try to work in small steps that you can push up to master without breaking tests
 * Make sure any relevant behaviour is tested, so we don't break your shit when we change it (we'll do the same for you, so you can change our shit without fear)
 * In any relevant commits, mention the issue number (e.g. [#17](issue17)), they will automatically be associated with the issue ([more on linking](https://help.github.com/articles/writing-on-github#references))
