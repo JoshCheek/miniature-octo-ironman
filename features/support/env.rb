@@ -52,7 +52,11 @@ module OurHelpers
   end
 
   def stop_server
-      OurHelpers.server_thread && OurHelpers.server_thread.kill
+    OurHelpers.server_thread && OurHelpers.server_thread.kill
+  end
+
+  def editor_class
+    '.interactive-code.ace_editor'
   end
 end
 
@@ -71,8 +75,6 @@ end
 
 
 Given 'I have a document "$name":' do |name, body|
-  # internet.visit "http://localhost:4567/a"
-  # internet.save_and_open_page
   File.write path_to_view(name), body
 end
 
@@ -86,7 +88,9 @@ Then 'my page has "$content" on it' do |content|
 end
 
 Then 'my page has an editor with "$content"' do |content|
-  pending
+  internet.within editor_class do
+    expect(internet).to have_content(content)
+  end
 end
 
 When 'I submit the code in editor $index' do |index|
