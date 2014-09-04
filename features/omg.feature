@@ -13,6 +13,6 @@ Feature: Document with code that prints output
     """
     When I visit "/lesson1"
     Then my page has "how to use size" on it
-    And my page has an editor with "p ['a', 'b', 'c']"
+    And my page has an editor with "puts ['a', 'b', 'c'].size"
     When I submit the code in editor 1
     Then I see an output box with "a\nb\nc" in it

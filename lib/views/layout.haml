@@ -3,7 +3,7 @@
   %head
     %title ACE in Action
     :css
-      .interactive-code {
+      .interactive-code.ace_editor {
         position:   relative;
       }
   %body
@@ -11,7 +11,6 @@
     %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
     :javascript
       codeElements = document.querySelectorAll('.interactive-code');
-      // var button = document.createElement('button');
       for(var index=0; index < codeElements.length; ++index) {
         var codeElement = codeElements[index]
         var editor      = ace.edit(codeElement);
@@ -24,6 +23,7 @@
         codeElement.parentNode.insertBefore(evalButton, codeElement.nextSibling);
         var button      = document.createElement('input');
         button.type = 'button';
+        button.id = 'run'+index
         button.value ='Run';
         evalButton.appendChild(button);
       }
