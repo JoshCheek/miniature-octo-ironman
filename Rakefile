@@ -1,5 +1,6 @@
 desc 'Set up the dev environment'
 task :bootstrap do
+  sh "gem install bundler"
   sh "brew install phantomjs"
   sh "bundle install"
 end
