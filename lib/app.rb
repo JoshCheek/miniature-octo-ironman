@@ -14,4 +14,9 @@ class MiniatureOctoIronman < Sinatra::Base
   get '/lesson1' do
     markdown :lesson1
   end
+
+  post '/run' do
+    evaluator = CodeEvaluator.new(code_of_string)
+    evaluator.run.to_json
+  end
 end
