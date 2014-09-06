@@ -10,20 +10,26 @@
     = yield
     %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
     :javascript
-      codeElements = document.querySelectorAll('.interactive-code');
-      for(var index=0; index < codeElements.length; ++index) {
-        var codeElement = codeElements[index]
-        var editor      = ace.edit(codeElement);
-        var code = editor.getValue(codeElement);
+      var codeToEditor = function(codeDiv) {
+        var editor      = ace.edit(codeDiv);
+        var code        = editor.getValue(codeDiv);
         editor.setTheme("ace/theme/monokai");
         editor.setOptions({maxLines: 15});
         editor.getSession().setMode("ace/mode/ruby");
-        var evalButton = document.createElement('div')
-        evalButton.id = "evalCode" + index
-        codeElement.parentNode.insertBefore(evalButton, codeElement.nextSibling);
-        var button      = document.createElement('input');
-        button.type = 'button';
-        button.id = 'run'+index
-        button.value ='Run';
-        evalButton.appendChild(button);
-      }
+        return editor;
+      };
+
+      var makeRunButton = function() {
+        var button     = document.createElement('input');
+        button.type    = 'button';
+        button.value   = 'Run';
+        return button;
+      };
+
+      var codeDivs = document.querySelectorAll('.interactive-code');
+      for(var index=0; index < codeDivs.length; ++index) {
+        var codeDiv = codeDivs[index];
+        var editor  = codeToEditor(codeDiv);
+        var button  = makeRunButton();
+        codeDiv.parentNode.insertBefore(button, codeDiv.nextSibling);
+      };
