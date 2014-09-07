@@ -1,15 +1,31 @@
 require 'moi/manifest'
 
 RSpec.describe 'Moi::Manifest' do
+  def endpoint_for(attributes)
+    Moi::Manifest::Endpoint.new attributes
+  end
+
+  it 'receives an array of hashes or endpoints that it converts to endpoints' do
+    endpoints = [ {repo: 'repo1', ref: 'ref1', file: 'file1'},
+                  Moi::Manifest::Endpoint.new(repo: 'repo2', ref: 'ref2', file: 'file2')]
+    manifest = Moi::Manifest.new endpoints
+    expect(manifest.size).to eq 2
+    expect(manifest[0].repo).to eq 'repo1'
+    expect(manifest[1].repo).to eq 'repo2'
+  end
+
+  it 'has all that Enumerable shit' do
+    endpoints = [ {repo: 'repo1', ref: 'ref1', file: 'file1'},
+                  Moi::Manifest::Endpoint.new(repo: 'repo2', ref: 'ref2', file: 'file2')]
+    manifest = Moi::Manifest.new endpoints
+    expect(manifest.map(&:repo)).to eq %w[repo1 repo2]
+  end
+
   describe 'Moi::Manifest::Endpoint' do
     let(:repo)             { 'somerepo' }
     let(:ref)              { 'someref'  }
     let(:file)             { 'somefile' }
     let(:valid_attributes) {{repo: repo, ref: ref, file: file}}
-
-    def endpoint_for(attributes)
-      Moi::Manifest::Endpoint.new attributes
-    end
 
     it 'has an endpoint, git repo, ref, and file' do
       manifest = endpoint_for valid_attributes
