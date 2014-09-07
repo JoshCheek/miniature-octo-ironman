@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'redcarpet'
 require 'haml'
+require 'eval_in'
 
 Haml::Options.defaults[:ugly] = true
 
@@ -15,8 +16,10 @@ class MiniatureOctoIronman < Sinatra::Base
     markdown :lesson1
   end
 
-  post '/run' do
-    evaluator = CodeEvaluator.new(code_of_string)
-    evaluator.run.to_json
+  get '/run' do
+    EvalIn.call(params[:code],
+                context: 'https://github.com/JoshCheek/miniature-octo-ironman',
+                language: 'ruby/mri-2.1')
+          .to_json
   end
 end

@@ -2,12 +2,14 @@
 %html{:lang => "en"}
   %head
     %title ACE in Action
+    %script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
     :css
       .interactive-code.ace_editor {
         position:   relative;
       }
   %body
     = yield
+
     %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
     :javascript
       var codeToEditor = function(codeDiv) {
@@ -19,17 +21,32 @@
         return editor;
       };
 
-      var makeRunButton = function() {
-        var button     = document.createElement('input');
-        button.type    = 'button';
-        button.value   = 'Run';
+      var makeRunButton = function(editor) {
+        var button   = document.createElement('input');
+        button.type  = 'button';
+        button.value = 'Run';
         return button;
       };
 
+      lastResult = null; // intentionally don't namespace, so I can get at it from console
       var codeDivs = document.querySelectorAll('.interactive-code');
       for(var index=0; index < codeDivs.length; ++index) {
-        var codeDiv = codeDivs[index];
-        var editor  = codeToEditor(codeDiv);
-        var button  = makeRunButton();
-        codeDiv.parentNode.insertBefore(button, codeDiv.nextSibling);
+        (function() { // <-- do this function thing b/c the vars iget shared otherwise
+          var codeDiv = codeDivs[index];
+          var editor  = codeToEditor(codeDiv);
+          var button  = makeRunButton(editor);
+          button.onclick = function(e) {
+            var code = editor.getValue();
+            console.log("Sending:", code);
+            jQuery.getJSON("/run", {code: code})
+                  .done(function(result) {
+                    lastResult = result;
+                    console.log("Success:", result);
+                  })
+                  .fail(function(jqXHR, textStatus, errorThrown) {
+                    console.error("Failure:", jqXHR, textStatus, errorThrown);
+                  });
+          }
+          codeDiv.parentNode.insertBefore(button, codeDiv.nextSibling);
+        })();
       };
