@@ -9,10 +9,10 @@ module Moi
         init_attribute :ref,       attributes, missing
         init_attribute :file,      attributes, missing
         init_attribute :localpath, attributes
-        raise ArgumentError, "Missing attributes: #{missing.inspect}" if missing.any?
 
         extra = attributes.keys - [:repo, :ref, :file, :localpath]
         raise ArgumentError, "Extra attributes: #{extra.inspect}"     if extra.any?
+        raise ArgumentError, "Missing attributes: #{missing.inspect}" if missing.any?
       end
 
       private
