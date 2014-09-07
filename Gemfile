@@ -5,9 +5,9 @@ source 'https://rubygems.org'
 # install a new Ruby just to work on the site
 # ...are other people doing this, too, or am I missing something?
 require 'rubygems'
-req      = Gem::Requirement.new('~> 2.1.0')
-default  = Gem::Version.new '2.1.2'
-current  = Gem::Version.new(ENV['RUBY_VERSION'])
+req      = Gem::Requirement.new '~> 2.1.0'
+default  = Gem::Version.new     '2.1.2'
+current  = Gem::Version.new     ENV['RUBY_VERSION']
 chosen   = req.satisfied_by?(current) ? current : default
 ruby(chosen.version)
 
