@@ -1,9 +1,12 @@
 source 'https://rubygems.org'
 
-require File.expand_path('../lib/moi/ruby_dependency', __FILE__)
-ruby Moi::RubyDependency.call requirement: '~> 2.1.0',
-                              default:     '2.1.2',
-                              current:     RUBY_VERSION
+require 'rubygems'
+req    = Gem::Requirement.new('~> 2.1.0')
+dflt   = Gem::Version.new '2.1.2'
+crnt   = Gem::Version.new(RUBY_VERSION)
+chosen = req.satisfied_by?(crnt) ? crnt : dflt
+ruby(chosen.version)
+
 
 gem 'haml',        '~> 4.0'
 gem 'eval_in',     '~> 0.1.6'
