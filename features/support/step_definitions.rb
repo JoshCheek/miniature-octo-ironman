@@ -9,7 +9,6 @@ Given 'I have a document "$name":' do |name, body|
 end
 
 When 'I visit "$path"' do |path|
-  require 'redcarpet' # TODO: Wat is this?
   internet.visit "http://localhost:1235#{path}"
 end
 

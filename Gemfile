@@ -20,8 +20,7 @@ gem 'eval_in',       '~> 0.1.6' # evaluate ruby code safely
 
 # rendering
 gem 'haml',          '~> 4.0'   # Alternative syntax for HTML, our layout is the only thing that uses it currently
-gem 'redcarpet',     '~> 3.1'   # markdown parser1
-gem 'rdiscount',     '~> 2.1.7' # markdown parser2 (why do we have 2 of these?)
+gem 'redcarpet',     '~> 3.1'   # markdown parser
 
 # support
 gem 'rake',          '~> 10.3'  # easily run tasks from the command-line
