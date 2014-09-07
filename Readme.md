@@ -23,22 +23,16 @@ Getting started
   </tr>
 </table>
 
-Iteration 1 goals
------------------
-
-- [X] I can embed a Ruby snippet into a markdown page and see an editor
-- [ ] I can run the code in the editor and see the output (Follow along with progress at #12)
-
 How do I contribute?
 --------------------
 
 * Pick an [issue](https://github.com/JoshCheek/miniature-octo-ironman/issues):
   * Look for one that is not assigned
-  * Sub issues of [#12][issue12] would be super helpful :)
-  * Also [#17][issue17] is small.
 * Try to work in small steps that you can push up to master without breaking tests
+* Push to master as *often* as you can!
 * Make sure any relevant behaviour is tested, so we don't break your shit when we change it (we'll do the same for you, so you can change our shit without fear)
-* In any relevant commits, mention the issue number (e.g. [#17](issue17)), they will automatically be associated with the issue ([more on linking](https://help.github.com/articles/writing-on-github#references))
+* In any relevant commits, mention the issue number (e.g. [#17](https://github.com/JoshCheek/miniature-octo-ironman/issues/17)),
+  they will automatically be associated with the issue ([more on linking](https://help.github.com/articles/writing-on-github#references))
 * When your commits are adequate to complete your story, ask for a code review.
 
 Philosophy of collaboration
@@ -57,10 +51,3 @@ Future shit maybe
 * manifest of lesson names to git repositories (ie gist) rather than having to edit the source of the server to change a lesson
 * maybe scoped by content owner
 * maybe overridable language for the editor
-
-
-[issue2]:  https://github.com/JoshCheek/miniature-octo-ironman/issues/2
-[issue11]: https://github.com/JoshCheek/miniature-octo-ironman/issues/11
-[issue12]: https://github.com/JoshCheek/miniature-octo-ironman/issues/12
-[issue17]: https://github.com/JoshCheek/miniature-octo-ironman/issues/17
-
