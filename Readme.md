@@ -1,9 +1,28 @@
 Overview
 --------
 
-I want to be able to make ruby-monk style lessons
-e.g. https://rubymonk.com/learning/books/4-ruby-primer-ascent/chapters/44-collections/lessons/98-iterate-filtrate-and-transform
-This project is to support that.
+Currently hosted [here](http://turingschool-moi.herokuapp.com/lesson1).
+
+I want to increase student engagement by embedding a runnable
+Ruby editor in the middle of their lessons. Then I can place
+interactive examples inline with the explanations. This idea
+is inspired by the [ExplorableExplanations](http://worrydream.com/ExplorableExplanations/)
+blog (even though Bret Victor would likely find this project inadequate).
+
+![Example](example.gif)
+
+Vision
+------
+
+For now, just match what rubymonks can do (run some code, show the output).
+In the future, if I have time/energy/competence, maybe get the environment
+to become considerably better. Here are things that entice me:
+
+* Syntax awareness in the editor (e.g. mouse over the var, it says its a local var, shows where its defined, might be able to use [rsense](https://rsense.github.io/) for this)
+* More interesting dynamic environments, e.g. [SiB](https://github.com/JoshCheek/seeing_is_believing), and test suites to check user submissions to challenges.
+* Ability to render an image of the object model and see how it updates as the user steps through the code (basically, dynamic explorable version of my [ObjectModel talk](https://github.com/JoshCheek/ruby-object-model)).
+* Support more sophisticated environments (e.g. gems) this will be difficult, though, without more control over the [executing environment](https://eval.in/) (maybe I can get added to that project)
+* Support other languages (this is inherently doable, eval.in already supports many)
 
 Getting started
 ---------------
