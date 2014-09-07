@@ -1,84 +1,33 @@
-require 'app'
-require 'fileutils'
-require 'rspec'
-require 'capybara/poltergeist'
-Capybara.default_driver = :poltergeist
-
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
 require 'support/stupid_stub_lib'
+require 'support/our_helpers'
 
-module OurHelpers
-  class << self
-    attr_accessor :server_thread
-  end
 
-  extend self
-
-  def views_dir
-    @views_dir ||= begin
-      dir = File.expand_path '../../../tmp', __FILE__
-      FileUtils.mkdir_p dir
-      dir
-    end
-  end
-
-  def copy_views
-    root_path = File.expand_path '../../..', __FILE__
-
-    view_files = Dir[root_path +"/lib/views/*"]
-
-    view_files.each do |view_file|
-     filename = File.basename view_file
-     FileUtils.cp view_file, path_to_view(filename)
-    end
-  end
-
-  def path_to_view(name)
-    File.join views_dir, name
-  end
-
-  def server
-    MiniatureOctoIronman
-  end
-
-  def internet
-    @internet ||= Capybara.current_session
-  end
-
-  def start_server
-    require 'webrick'
-    OurHelpers.server_thread = Thread.new {
-      Rack::Server.start app: OurHelpers.server.new, Port: 1235, server: 'webrick', AccessLog: [] , Logger: WEBrick::Log.new(StringIO.new)
-    }
-  end
-
-  def stop_server
-    OurHelpers.server_thread && OurHelpers.server_thread.kill
-  end
-
-  def editor_class
-    '.interactive-code.ace_editor'
-  end
-end
-
+# Start our server
 OurHelpers.start_server
 at_exit { OurHelpers.stop_server }
 
+# Don't accidentally go hitting services during tests
 require 'webmock'
 WebMock.disable_net_connect!
 
+# We'll stick our stubs here
+CukeStubs = StupidStubLib.new
+
+# Things to add to the Cucumber world
+require 'rspec'
 World OurHelpers,
       RSpec::Expectations,
       RSpec::Matchers,
       RSpec::Mocks::ExampleMethods
 
-CukeStubs = StupidStubLib.new
-
+# Hijack the server to look at our custom views
 Before do
   copy_views
   server.set :views, views_dir
 end
 
+# Remove stubs
 After do
   CukeStubs.unstub self
 end
@@ -113,5 +62,5 @@ When 'I submit the code in the editor' do
 end
 
 Then 'I see an output box with "$content" in it' do |content|
-  expect(internet).to have_css '.result-display', text: content
+  expect(internet).to have_css displayed_result_class, text: content
 end
