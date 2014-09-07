@@ -7,7 +7,7 @@ source 'https://rubygems.org'
 require 'rubygems'
 req      = Gem::Requirement.new('~> 2.1.0')
 default  = Gem::Version.new '2.1.2'
-current  = Gem::Version.new(defined?(RUBY_VERSION) ? RUBY_VERSION : ENV['RUBY_VERSION']) # newer rubies have RUBY_VERSION, but on heroku, we need to check the env
+current  = Gem::Version.new(ENV['RUBY_VERSION'])
 chosen   = req.satisfied_by?(current) ? current : default
 ruby(chosen.version)
 
