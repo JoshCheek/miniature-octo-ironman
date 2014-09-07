@@ -7,7 +7,7 @@ source 'https://rubygems.org'
 require 'rubygems'
 req      = Gem::Requirement.new('~> 2.1.0')
 default  = Gem::Version.new '2.1.2'
-current  = Gem::Version.new(RUBY_VERSION)
+current  = Gem::Version.new(ENV['RUBY_VERSION'])
 chosen   = req.satisfied_by?(current) ? current : default
 ruby(chosen.version)
 
