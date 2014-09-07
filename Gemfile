@@ -23,6 +23,9 @@ gem 'haml',        '~> 4.0'    # Alternative syntax for HTML, our layout is the 
 gem 'redcarpet',   '~> 3.1'    # markdown parser1
 gem 'rdiscount',   '~> 2.1.7'  # markdown parser2 (why do we have 2 of these?)
 
+# support
+gem 'rake',          '~> 10.3' # easily run tasks from the command-line
+
 # these will not be installed in production (Heroku)
 group :test do
   gem 'pry',         '~> 0.10' # because who would ever want to develop in an env without this?

@@ -50,6 +50,7 @@ GEM
       rack
     rack-test (0.6.2)
       rack (>= 1.0)
+    rake (10.3.2)
     rdiscount (2.1.7.1)
     redcarpet (3.1.1)
     rspec (3.0.0)
@@ -90,6 +91,7 @@ DEPENDENCIES
   poltergeist (~> 1.5)
   pry (~> 0.10)
   puma (~> 2.9)
+  rake (~> 10.3)
   rdiscount (~> 2.1.7)
   redcarpet (~> 3.1)
   rspec (~> 3.0)
