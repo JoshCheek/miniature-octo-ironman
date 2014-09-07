@@ -12,6 +12,7 @@ chosen   = req.satisfied_by?(current) ? current : default
 ruby(chosen.version)
 
 # serving the site
+gem 'puma',        '~> 2.9'    # web server
 gem 'sinatra',     '~> 1.4'    # web framework
 
 # handling requests

@@ -43,6 +43,8 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    puma (2.9.0)
+      rack (>= 1.1, < 2.0)
     rack (1.5.2)
     rack-protection (1.5.3)
       rack
@@ -87,6 +89,7 @@ DEPENDENCIES
   launchy (~> 2.4)
   poltergeist (~> 1.5)
   pry (~> 0.10)
+  puma (~> 2.9)
   rdiscount (~> 2.1.7)
   redcarpet (~> 3.1)
   rspec (~> 3.0)
