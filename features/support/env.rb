@@ -1,10 +1,11 @@
+require 'app'
 require 'fileutils'
 require 'rspec'
 require 'capybara/poltergeist'
 Capybara.default_driver = :poltergeist
 
-$LOAD_PATH.unshift '../../../lib', __FILE__
-require 'app'
+$LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+require 'support/stupid_stub_lib'
 
 module OurHelpers
   class << self
@@ -45,10 +46,10 @@ module OurHelpers
   end
 
   def start_server
-   require 'webrick'
-   OurHelpers.server_thread = Thread.new {
-     Rack::Server.start app: OurHelpers.server.new, Port: 1235, server: 'webrick', AccessLog: [] , Logger: WEBrick::Log.new(StringIO.new)
-   }
+    require 'webrick'
+    OurHelpers.server_thread = Thread.new {
+      Rack::Server.start app: OurHelpers.server.new, Port: 1235, server: 'webrick', AccessLog: [] , Logger: WEBrick::Log.new(StringIO.new)
+    }
   end
 
   def stop_server
@@ -63,16 +64,30 @@ end
 OurHelpers.start_server
 at_exit { OurHelpers.stop_server }
 
+require 'webmock'
+WebMock.disable_net_connect!
+
 World OurHelpers,
       RSpec::Expectations,
-      RSpec::Matchers
+      RSpec::Matchers,
+      RSpec::Mocks::ExampleMethods
 
+CukeStubs = StupidStubLib.new
 
 Before do
   copy_views
   server.set :views, views_dir
 end
 
+After do
+  CukeStubs.unstub self
+end
+
+Given 'eval.in will serve "$url" as:' do |url, json|
+  parsed_json = JSON.parse(json).merge('url' => url)
+  result      = EvalIn.build_result(parsed_json)
+  CukeStubs.stub self, EvalIn, :call, result
+end
 
 Given 'I have a document "$name":' do |name, body|
   File.write path_to_view(name), body
@@ -93,10 +108,10 @@ Then 'my page has an editor with "$content"' do |content|
   end
 end
 
-When 'I submit the code in editor $index' do |index|
-  pending
+When 'I submit the code in the editor' do
+  internet.click_on 'Run'
 end
 
-Then 'I see an output box with "$content" in it' do |arg1|
-  pending
+Then 'I see an output box with "$content" in it' do |content|
+  expect(internet).to have_css '.result-display', text: content
 end

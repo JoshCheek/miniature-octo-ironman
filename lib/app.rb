@@ -27,7 +27,7 @@ class MiniatureOctoIronman < Sinatra::Base
     #   language:          "ruby/mri-2.1",
     #   language_friendly: "Ruby — MRI 2.1",
     #   code:              "\n  puts ['a', 'b', 'c'].size\n",
-    #   output:            "3\n",
+    #   output:            "mock-from-run\n",
     #   status:            "OK (0.052 sec real, 0.059 sec wall, 9 MB, 18 syscalls)",
     #   url:               "https://eval.in/189558.json"
     # ).to_json
