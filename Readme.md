@@ -72,6 +72,7 @@ to become considerably better. Here are things that entice me:
 * Ability to render an image of the object model and see how it updates as the user steps through the code (basically, dynamic explorable version of my [ObjectModel talk](https://github.com/JoshCheek/ruby-object-model)).
 * Support more sophisticated environments (e.g. gems) this will be difficult, though, without more control over the [executing environment](https://eval.in/) (maybe I can get added to that project)
 * Support other languages (this is inherently doable, eval.in already supports many)
+* Read through [this](http://worrydream.com/LearnableProgramming/) and get some ideas.
 
 Future shit maybe
 -----------------
