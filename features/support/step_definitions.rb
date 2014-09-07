@@ -1,7 +1,7 @@
 Given 'eval.in will serve "$url" as:' do |url, json|
   parsed_json = JSON.parse(json).merge('url' => url)
   result      = EvalIn.build_result(parsed_json)
-  CukeStubs.stub self, EvalIn, :call, result
+  CukeStubs.stub EvalIn, :call, result
 end
 
 Given 'I have a document "$name":' do |name, body|

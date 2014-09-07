@@ -1,6 +1,6 @@
 # load our helpers
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
-require 'support/stupid_stub_lib'
+require 'support/shitty_stub' # TODO: These get required here, but then loaded by Cucumber afterwards. Idk how everyone else deals with this, might become a problem
 require 'support/our_helpers'
 
 # Start our server
@@ -12,7 +12,7 @@ require 'webmock'
 WebMock.disable_net_connect!
 
 # Custom stub lib since RSpec mocks apparently doesn't work
-CukeStubs = StupidStubLib.new
+CukeStubs = ShittyStub.new
 
 # Things to add to the Cucumber world
 require 'rspec'
@@ -29,5 +29,5 @@ end
 
 # Remove stubs
 After do
-  CukeStubs.unstub self
+  CukeStubs.unstub
 end
