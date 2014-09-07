@@ -6,7 +6,7 @@ class Moi
 
     # @example
     #   Moi::RubyDependency.call requirement: '~> 2.1.0',
-    #                            default:     '2.1.2,
+    #                            default:     '2.1.2',
     #                            current:     RUBY_VERSION
     def self.call(params)
       new(params).call
