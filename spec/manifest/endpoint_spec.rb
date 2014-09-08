@@ -67,9 +67,11 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
       end
     end
 
-    xit 'is invalid if there is an error string' do
+    it 'is invalid if there is an error string' do
       expect(endpoint_for valid_attributes).to be_valid
-      expect(endpoint_for each_invalid.first).to_not be_valid
+
+      missing_attr, endpoint = each_invalid.first
+      expect(endpoint).to_not be_valid
     end
 
     it 'has a nil error string when all attributes are available' do
