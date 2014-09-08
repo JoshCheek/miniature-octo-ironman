@@ -36,16 +36,16 @@ Contributing
   * Pick an unassigned [issue](https://github.com/JoshCheek/miniature-octo-ironman/issues)
   * See a problem? Fix it.
   * Have an idea? Open an issue.
-* **Pull often.** Especailly before starting any stories. Expect master to update frequently, you want to be on the cutting edge,
+* **Pull often.** Especially before starting any stories. Expect master to update frequently, you want to be on the cutting edge,
   hovering around the project's master branch, so that all changes are small and easy to bring in,
   with low likelihood of merge conflicts, and low likelihood of diverging from what others are doing,
-  and as much of everone else's work as possible, so that there is very little holding you up.
+  and as much of everyone else's work as possible, so that there is very little holding you up.
 * **Try to work in small steps** so that you can get your code merged into master as *often* as possible! Ideally, you could merge every 20 minutes or so.
 * **Disdain perfection** Small improvements are all we need, trying to be perfect will prevent your code from getting into the codebase,
   which will conflict with working in small steps. Remember, we can always change it, we can always fix it.
   A commit that does half a story can be merged if it doesn't break things.
 * **Always make sure tests are passing before pushing / sending a pull request.**
-* **Make sure any relevant behaviour is tested**, so we don't break your shit when we change it (we'll do the same for you, so you can change our shit without fear)
+* **Make sure any relevant behavior is tested**, so we don't break your shit when we change it (we'll do the same for you, so you can change our shit without fear)
   If you're having difficulty knowing what or how to do this, come ask.
 * **In any relevant commits, mention the issue number** (e.g. [#17](https://github.com/JoshCheek/miniature-octo-ironman/issues/17)),
   they will automatically be associated with the issue ([more on linking](https://help.github.com/articles/writing-on-github#references))
@@ -63,7 +63,7 @@ Contributing
 Vision
 ------
 
-For now, just match what rubymonks can do (run some code, show the output).
+For now, just match what [Rubymonk](https://rubymonk.com/) can do (run some code, show the output).
 In the future, if I have time/energy/competence, maybe get the environment
 to become considerably better. Here are things that entice me:
 
