@@ -1,16 +1,16 @@
 module Moi
   class Manifest
     class Endpoint
-      attr_accessor :repo, :ref, :file, :owner, :path, :localpath
+      attr_accessor :repo, :ref, :file, :owner, :webpath, :localpath
 
       def initialize(attributes)
-        self.extra   = attributes.keys - [:repo, :ref, :file, :owner, :path, :localpath]
+        self.extra   = attributes.keys - [:repo, :ref, :file, :owner, :webpath, :localpath]
         self.missing = []
         init_attribute :repo,      attributes, missing
         init_attribute :ref,       attributes, missing
         init_attribute :file,      attributes, missing
         init_attribute :owner,     attributes, missing
-        init_attribute :path,      attributes, missing
+        init_attribute :webpath,   attributes, missing
         init_attribute :localpath, attributes
       end
 

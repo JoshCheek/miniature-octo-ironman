@@ -5,11 +5,11 @@ RSpec.describe 'Moi::Manifest' do
     Moi::Manifest::Endpoint.new attributes
   end
 
-  # raises error if multiple repos have same owner and endpoint
+  # TODO invalid if multiple repos have same owner and endpoint
 
   it 'receives an array of hashes or endpoints that it converts to endpoints' do
-    endpoints = [ {repo: 'repo1', ref: 'ref1', file: 'file1', owner: 'owner1', path: 'path1'},
-                  Moi::Manifest::Endpoint.new(repo: 'repo2', ref: 'ref2', file: 'file2', owner: 'owner1', path: 'path2')]
+    endpoints = [ {repo: 'repo1', ref: 'ref1', file: 'file1', owner: 'owner1', webpath: 'webpath1'},
+                  Moi::Manifest::Endpoint.new(repo: 'repo2', ref: 'ref2', file: 'file2', owner: 'owner1', webpath: 'webpath2')]
     manifest = Moi::Manifest.new endpoints
     expect(manifest.size).to eq 2
     expect(manifest[0].repo).to eq 'repo1'
@@ -17,27 +17,27 @@ RSpec.describe 'Moi::Manifest' do
   end
 
   it 'has all that Enumerable shit' do
-    endpoints = [ {repo: 'repo1', ref: 'ref1', file: 'file1', owner: 'owner1', path: 'path1'},
-                  Moi::Manifest::Endpoint.new(repo: 'repo2', ref: 'ref2', file: 'file2', owner: 'owner1', path: 'path2')]
+    endpoints = [ {repo: 'repo1', ref: 'ref1', file: 'file1', owner: 'owner1', webpath: 'webpath1'},
+                  Moi::Manifest::Endpoint.new(repo: 'repo2', ref: 'ref2', file: 'file2', owner: 'owner1', webpath: 'webpath2')]
     manifest = Moi::Manifest.new endpoints
     expect(manifest.map(&:repo)).to eq %w[repo1 repo2]
   end
 
   describe 'Moi::Manifest::Endpoint' do
-    let(:repo)             { 'somerepo'   }
-    let(:ref)              { 'someref'    }
-    let(:file)             { 'somefile'   }
-    let(:owner)            { 'someowner'  }
-    let(:path)             { 'somepath'   }
-    let(:valid_attributes) {{repo: repo, ref: ref, file: file, owner: owner, path: path}}
+    let(:repo)             { 'somerepo'    }
+    let(:ref)              { 'someref'     }
+    let(:file)             { 'somefile'    }
+    let(:owner)            { 'someowner'   }
+    let(:webpath)          { 'somewebpath' }
+    let(:valid_attributes) {{repo: repo, ref: ref, file: file, owner: owner, webpath: webpath}}
 
-    it 'has an git repo, ref, file, owner, and path' do
+    it 'has an git repo, ref, file, owner, and webpath' do
       manifest = endpoint_for valid_attributes
-      expect(manifest.repo ).to eq repo
-      expect(manifest.ref  ).to eq ref
-      expect(manifest.file ).to eq file
-      expect(manifest.owner).to eq owner
-      expect(manifest.path ).to eq path
+      expect(manifest.repo   ).to eq repo
+      expect(manifest.ref    ).to eq ref
+      expect(manifest.file   ).to eq file
+      expect(manifest.owner  ).to eq owner
+      expect(manifest.webpath).to eq webpath
     end
 
     it 'optionally takes a localpath' do
@@ -50,7 +50,7 @@ RSpec.describe 'Moi::Manifest' do
 
     context 'validation/errors' do
       def each_invalid
-        [:repo, :ref, :file, :owner, :path].each do |attribute|
+        [:repo, :ref, :file, :owner, :webpath].each do |attribute|
           invalid_attributs = valid_attributes.reject { |k, v| k == attribute }
           yield attribute, endpoint_for(invalid_attributs)
         end
