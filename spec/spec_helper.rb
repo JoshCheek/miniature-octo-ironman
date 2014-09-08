@@ -32,7 +32,7 @@ class FsHelpers
   end
 
   def repo_name
-    'upstream_repo'
+    'the_repo'
   end
 
   def mkdir(dir)
@@ -62,7 +62,7 @@ class FsHelpers
 
   def sh(command)
     output, error, status = Open3.capture3(command)
-    return if status.success?
+    return output if status.success?
     puts "SH FAILED:"
     puts "  ERR:    #{error.inspect}"
     puts "  OUT:    #{output.inspect}"

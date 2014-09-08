@@ -1,4 +1,5 @@
 require 'pathname'
+require 'rugged'
 
 module Moi
   class Manifest
@@ -45,5 +46,15 @@ module Moi
         owner && reponame && File.join(owner, reponame)
       end
     end
+
+
+    class << Endpoint
+      def retrieve(endpoint)
+        endpoint.repo     or raise ArgumentError, "Must have a repo to retrieve, but #{endpoint.inspect} does not"
+        endpoint.fullpath or raise ArgumentError, "Must have a fullpath to retrieve, but #{endpoint.inspect} does not"
+        Rugged::Repository.clone_at(endpoint.repo, endpoint.fullpath)
+      end
+    end
+
   end
 end
