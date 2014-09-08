@@ -4,20 +4,31 @@ module Moi
       attr_accessor :repo, :ref, :file, :owner, :path, :localpath
 
       def initialize(attributes)
-        missing = []
+        self.extra   = attributes.keys - [:repo, :ref, :file, :owner, :path, :localpath]
+        self.missing = []
         init_attribute :repo,      attributes, missing
         init_attribute :ref,       attributes, missing
         init_attribute :file,      attributes, missing
         init_attribute :owner,     attributes, missing
         init_attribute :path,      attributes, missing
         init_attribute :localpath, attributes
+      end
 
-        extra = attributes.keys - [:repo, :ref, :file, :owner, :path, :localpath]
-        raise ArgumentError, "Extra attributes: #{extra.inspect}"     if extra.any?
-        raise ArgumentError, "Missing attributes: #{missing.inspect}" if missing.any?
+      def valid?
+        !error
+      end
+
+      def error
+        if missing.any?
+          "Missing attributes: #{missing.inspect}"
+        elsif extra.any?
+          "Extra attributes: #{extra.inspect}"
+        end
       end
 
       private
+
+      attr_accessor :missing, :extra
 
       def init_attribute(name, attributes, missing=nil)
         if attributes[name]

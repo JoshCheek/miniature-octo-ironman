@@ -48,22 +48,38 @@ RSpec.describe 'Moi::Manifest' do
       expect(endpoint.localpath).to eq 'somepath'
     end
 
-    it 'raises an error if any attributes are missing' do
-      endpoint_without = lambda do |*keys|
-        invalid_attributs = valid_attributes.reject { |k, v| keys.any? { |key| key == k } }
-        endpoint_for invalid_attributs
+    context 'validation/errors' do
+      def each_invalid
+        [:repo, :ref, :file, :owner, :path].each do |attribute|
+          invalid_attributs = valid_attributes.reject { |k, v| k == attribute }
+          yield attribute, endpoint_for(invalid_attributs)
+        end
       end
-      expect { valid_attributes }.to_not raise_error
-      expect { endpoint_without[:repo ]}.to raise_error ArgumentError, /Missing attributes: \[:repo\]/
-      expect { endpoint_without[:ref  ]}.to raise_error ArgumentError, /Missing attributes: \[:ref\]/
-      expect { endpoint_without[:file ]}.to raise_error ArgumentError, /Missing attributes: \[:file\]/
-      expect { endpoint_without[:owner]}.to raise_error ArgumentError, /Missing attributes: \[:owner\]/
-      expect { endpoint_without[:path ]}.to raise_error ArgumentError, /Missing attributes: \[:path\]/
-    end
 
-    it 'raises an error if extra keys are provided' do
-      expect { endpoint_for valid_attributes.merge(extra: 'val') }
-        .to raise_error ArgumentError, /Extra attributes: \[:extra\]/
+      it 'is invalid if any mandatory attributes are missing' do
+        expect(endpoint_for valid_attributes).to be_valid
+        expect(endpoint_for valid_attributes.merge(localpath: 'somepath')).to be_valid
+        each_invalid { |attribute, endpoint| expect(endpoint).to_not be_valid }
+      end
+
+      it 'is invalid if any extra keys are provided' do
+        expect(endpoint_for valid_attributes.merge(extra: 'val')).to_not be_valid
+      end
+
+      it 'has a nil error string when all attributes are available' do
+        expect(endpoint_for(valid_attributes).error).to be_nil
+        expect(endpoint_for(valid_attributes.merge(localpath: 'somepath')).error).to be_nil
+      end
+
+      it 'has an error string that explains what keys are missing' do
+        each_invalid do |attribute, endpoint|
+          expect(endpoint.error).to eq "Missing attributes: [#{attribute.inspect}]"
+        end
+      end
+
+      it 'has an error string that explains what keys are extra' do
+        expect(endpoint_for(valid_attributes.merge extra: 'val').error).to eq "Extra attributes: [:extra]"
+      end
     end
   end
 end
