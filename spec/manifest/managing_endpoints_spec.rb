@@ -50,8 +50,29 @@ describe 'managing Moi::Manifest::Endpoint' do
       end
     end
 
-    it 'does nothing if the repo already exists'
-    it 'raises an error if there is a repo at the localpath, and it is the wrong one'
+    it 'returns true if it cloned the repo' do
+      expect(retrieve endpoint).to eq true
+      expect(retrieve endpoint).to eq false
+    end
+
+    it 'does nothing if the repo already exists' do
+      retrieve endpoint
+      retrieve endpoint
+      cloned_sha   = fs.current_sha(endpoint.fullpath)
+      upstream_sha = fs.current_sha(endpoint.repo)
+      expect(cloned_sha).to eq upstream_sha
+    end
+
+    it 'raises an error if there is something at the localpath which is not a repository' do
+      fs.mkdir(endpoint.fullpath)
+      expect { retrieve endpoint }.to raise_error Endpoint::WatsGoinOnHere
+    end
+
+    it 'raises an error if there is a repo at the localpath, and it is the wrong one' do
+      upstream_path = fs.make_upstream_repo(1)
+      retrieve Endpoint.new(datadir: datadir, repo: upstream_path, localpath: endpoint.localpath)
+      expect { retrieve endpoint }.to raise_error Endpoint::WatsGoinOnHere
+    end
   end
 
   describe '#read' do

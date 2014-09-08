@@ -4,6 +4,14 @@ require 'rugged'
 module Moi
   class Manifest
     class Endpoint
+      ManifestError  = Class.new StandardError
+      WatsGoinOnHere = Class.new ManifestError
+
+      # TODO: renamings:
+      #   repo     -> repo_path
+      #   fullpath -> absolute_path
+      #   file     -> main_filename
+
       ATTRIBUTE_NAMES = [:repo, :ref, :file, :owner, :webpath, :localpath, :datadir].freeze
       attr_accessor *ATTRIBUTE_NAMES
 
@@ -52,7 +60,17 @@ module Moi
       def retrieve(endpoint)
         endpoint.repo     or raise ArgumentError, "Must have a repo to retrieve, but #{endpoint.inspect} does not"
         endpoint.fullpath or raise ArgumentError, "Must have a fullpath to retrieve, but #{endpoint.inspect} does not"
-        Rugged::Repository.clone_at(endpoint.repo, endpoint.fullpath)
+        begin
+          repo   = Rugged::Repository.new(endpoint.fullpath)
+          remote = repo.remotes.find { |remote| remote.url == endpoint.repo }
+          remote or raise Endpoint::WatsGoinOnHere, "Expected to have a remote for #{endpoint.repo.inspect}, but only had #{repo.remotes.map(&:url).inspect}"
+          false
+        rescue Rugged::OSError
+          Rugged::Repository.clone_at(endpoint.repo, endpoint.fullpath)
+          true
+        rescue Rugged::RepositoryError => e
+          raise Endpoint::WatsGoinOnHere, e.message
+        end
       end
     end
 

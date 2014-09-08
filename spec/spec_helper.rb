@@ -1,4 +1,5 @@
 require 'open3'
+require 'tmpdir'
 
 class FsHelpers
   attr_accessor :datadir
@@ -13,26 +14,31 @@ class FsHelpers
     mkdir  datadir
   end
 
-  def make_upstream_repo
-    mkdir upstream_repo_path
-    cd upstream_repo_path do
+  def make_upstream_repo(n=nil)
+    if n
+      make_repo_at upstream_repo_path("repo#{n}")
+    else
+      make_repo_at upstream_repo_path
+    end
+  end
+
+  def make_repo_at(path)
+    mkdir path
+    cd path do
       write 'somefile', 'some content'
       sh 'git init'
       sh 'git add .'
       sh 'git commit -m "This is a test repo"'
     end
+    path
   end
 
-  def upstream_repo_path
+  def upstream_repo_path(repo_name='default_repo')
     File.join upstream_path, repo_name
   end
 
   def upstream_path
     File.join datadir, 'upstream'
-  end
-
-  def repo_name
-    'the_repo'
   end
 
   def mkdir(dir)
@@ -69,5 +75,9 @@ class FsHelpers
     puts "  STATUS: #{status.exitstatus}"
     require "pry"
     binding.pry
+  end
+
+  def current_sha(path)
+    sh "git log --pretty=format:%H -1"
   end
 end
