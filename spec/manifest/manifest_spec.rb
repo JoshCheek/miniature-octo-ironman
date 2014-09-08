@@ -75,22 +75,23 @@ RSpec.describe 'Moi::Manifest' do
       end
     end
 
+    it 'raises an error if initialized with extra attributes (presumably you fucked something up somewhere)' do
+      expect { endpoint_for valid_attributes.merge(extra: 'val') }
+        .to raise_error ArgumentError, /extra/
+    end
+
     context 'validation/errors' do
       def each_invalid
+        return to_enum :each_invalid unless block_given?
         [:repo, :ref, :file, :owner, :webpath, :datadir].each do |attribute|
           invalid_attributs = valid_attributes.reject { |k, v| k == attribute }
           yield attribute, endpoint_for(invalid_attributs)
         end
       end
 
-      it 'is invalid if any mandatory attributes are missing' do
+      xit 'is invalid if there is an error string' do
         expect(endpoint_for valid_attributes).to be_valid
-        expect(endpoint_for valid_attributes.merge(localpath: 'somepath')).to be_valid
-        each_invalid { |attribute, endpoint| expect(endpoint).to_not be_valid }
-      end
-
-      it 'is invalid if any extra keys are provided' do
-        expect(endpoint_for valid_attributes.merge(extra: 'val')).to_not be_valid
+        expect(endpoint_for each_invalid.first).to_not be_valid
       end
 
       it 'has a nil error string when all attributes are available' do
@@ -100,12 +101,8 @@ RSpec.describe 'Moi::Manifest' do
 
       it 'has an error string that explains what keys are missing' do
         each_invalid do |attribute, endpoint|
-          expect(endpoint.error).to eq "Missing attributes: [#{attribute.inspect}]"
+          expect(endpoint.error).to match /Missing attributes: .*?#{attribute}/
         end
-      end
-
-      it 'has an error string that explains what keys are extra' do
-        expect(endpoint_for(valid_attributes.merge extra: 'val').error).to eq "Extra attributes: [:extra]"
       end
 
       it 'is invalid with error if localpath is absolute' do

@@ -3,28 +3,21 @@ require 'pathname'
 module Moi
   class Manifest
     class Endpoint
-      attr_accessor :repo, :ref, :file, :owner, :webpath, :datadir
+      ATTRIBUTE_NAMES = [:repo, :ref, :file, :owner, :webpath, :localpath, :datadir].freeze
+      attr_accessor *ATTRIBUTE_NAMES
 
       def initialize(attributes)
-        self.extra   = attributes.keys - [:repo, :ref, :file, :owner, :webpath, :localpath, :datadir]
-        self.missing = []
-        init_attribute :repo,      attributes, missing
-        init_attribute :ref,       attributes, missing
-        init_attribute :file,      attributes, missing
-        init_attribute :owner,     attributes, missing
-        init_attribute :webpath,   attributes, missing
-        init_attribute :datadir,   attributes, missing
-        init_attribute :localpath, attributes
+        extras = attributes.keys - ATTRIBUTE_NAMES
+        raise ArgumentError, "Wat are these? #{extras.inspect}" if extras.any?
+        ATTRIBUTE_NAMES.each { |attribute| self.__send__ "#{attribute}=", attributes[attribute] }
       end
 
-      attr_writer :localpath
-
       def fullpath
-        datadir && File.join(datadir, localpath)
+        datadir && localpath && File.join(datadir, localpath)
       end
 
       def localpath
-        @localpath || File.join(owner, reponame)
+        @localpath || generate_localpath
       end
 
       def valid?
@@ -32,10 +25,9 @@ module Moi
       end
 
       def error # should prob do this dynamically
+        missing = ATTRIBUTE_NAMES.reject { |n| __send__ n }
         if missing.any?
           "Missing attributes: #{missing.inspect}"
-        elsif extra.any?
-          "Extra attributes: #{extra.inspect}"
         elsif localpath && localpath.start_with?("/")
           "localpath should not be absolute, but it is #{localpath.inspect}"
         end
@@ -43,18 +35,12 @@ module Moi
 
       private
 
-      attr_accessor :missing, :extra
-
-      def init_attribute(name, attributes, missing=nil)
-        if attributes[name]
-          self.__send__ "#{name}=", attributes[name]
-        elsif missing
-          missing << name
-        end
+      def reponame
+        repo && Pathname.new(repo).basename.sub_ext("")
       end
 
-      def reponame
-        Pathname.new(repo).basename.sub_ext("")
+      def generate_localpath
+        owner && reponame && File.join(owner, reponame)
       end
     end
   end
