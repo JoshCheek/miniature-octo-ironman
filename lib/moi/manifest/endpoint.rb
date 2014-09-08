@@ -30,6 +30,8 @@ module Moi
           "Missing attributes: #{missing.inspect}"
         elsif localpath && localpath.start_with?("/")
           "localpath should not be absolute, but it is #{localpath.inspect}"
+        elsif !fullpath.start_with?('/')
+          "fullpath should be absolute, but it is #{fullpath.inspect}"
         end
       end
 

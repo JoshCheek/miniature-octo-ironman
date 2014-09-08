@@ -11,7 +11,7 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
   let(:file)             { 'somefile'                                     }
   let(:owner)            { 'someowner'                                    }
   let(:webpath)          { 'somewebpath'                                  }
-  let(:datadir)          { 'somedatadir'                                  }
+  let(:datadir)          { '/somedatadir'                                 }
   let(:valid_attributes) {{repo: repo, ref: ref, file: file, owner: owner, webpath: webpath, datadir: datadir}}
   let(:endpoint)         { endpoint_for valid_attributes }
 
@@ -88,7 +88,13 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
     it 'is invalid with error if localpath is absolute' do
       endpoint = endpoint_for valid_attributes.merge(localpath: "/a")
       expect(endpoint).to_not be_valid
-      expect(endpoint.error).to match /absolute/
+      expect(endpoint.error).to match /localpath/
+    end
+
+    it 'is invalid if fullpath is not absolute' do
+      endpoint = endpoint_for valid_attributes.merge(datadir: 'a')
+      expect(endpoint).to_not be_valid
+      expect(endpoint.error).to match /fullpath/
     end
   end
 end
