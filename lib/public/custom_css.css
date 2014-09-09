@@ -1,10 +1,42 @@
-.interactive-code.ace_editor {
-  position:   relative;
+a{
+  text-decoration: none;
 }
-
-.resultDisplay.style {
-  width:             '100%';
-  max-height:        '100px';
-  background-color:  'green';
-  display:           'none';
+h1{
+  font-size: 1.5em;
+}
+.header{
+  margin-bottom: 4em;
+}
+.interactive-code{
+  margin: 10px 0;
+}
+.interactive-code.ace_editor {
+  position: relative;
+}
+.result-display{
+  width: 100%;
+  padding: 1em;
+  display: none;
+}
+.example-output{
+  display: block;
+  background: beige; /*to be changed on success or failure see below*/
+}
+.success{
+  background: green;
+  display: block;
+}
+.failure{
+  background: #d50000;
+  display: block;
+}
+.main-content{
+  width: 75%;
+  margin: auto;
+}
+.codeSection{
+  margin-bottom: 4em;
+}
+.block{
+  display: block;
 }
