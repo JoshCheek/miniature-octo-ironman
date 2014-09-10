@@ -1,6 +1,12 @@
 require 'moi/manifest'
 require 'spec_helper'
 
+# TODO:
+#   finish these tests
+#   refactor tests/helpers
+#   perform renamings in Endpoint
+#   more helpful tests on WatsGoinOnHere stuffs
+
 describe 'managing Moi::Manifest::Endpoint' do
   Endpoint = Moi::Manifest::Endpoint
 
