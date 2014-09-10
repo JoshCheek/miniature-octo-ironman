@@ -8,6 +8,30 @@ Given 'I have a document "$name":' do |name, body|
   File.write path_to_view(name), body
 end
 
+require 'moi/manifest/endpoint'
+def endpoint
+  config = {
+    repo:    'https://github.com/JoshCheek/miniature-octo-ironman.git',
+    ref:     'someref',
+    file:    'somefile',
+    owner:   'someowner',
+    webpath: 'somewebpath',
+    datadir: '/somedatadir'
+  }
+  Moi::Manifest::Endpoint.new(config)
+end
+
+require_relative '../../spec/spec_helper'
+Given /^the git repo exists$/ do
+  file_helper = FsHelpers.new File.expand_path '../../tmp', __FILE__
+  file_helper.reset_datadir
+  file_helper.make_upstream_repo
+end
+
+Given /^I have a configuration$/  do
+  MiniatureOctoIronman::ENDPOINT_CONFIGURATION = [endpoint]
+end
+
 When 'I visit "$path"' do |path|
   require 'redcarpet' # TODO: Wat is this?
   internet.visit "http://localhost:1235#{path}"

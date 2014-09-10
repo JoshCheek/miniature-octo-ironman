@@ -25,3 +25,22 @@ Feature: Document with code that prints output
     And my page has an editor with "puts ['z', 'o', 'm', 'g'].size"
     When I submit the code in the editor
     Then I see an output box with "mock-from-cuke" in it
+
+  Scenario:
+    Given eval.in will serve "https://eval.in/189571.json" as:
+    """
+      { "lang":          "ruby/mri-2.1",
+        "lang_friendly": "Ruby — MRI 2.1",
+        "code":          "\n  puts ['a', 'b', 'c'].size\n",
+        "output":        "mock-from-cuke",
+        "status":        "OK (0.052 sec real, 0.060 sec wall, 9 MB, 18 syscalls)"
+      }
+    """
+
+    And the git repo exists
+    And I have a configuration
+    When I visit "/custom_lesson"
+    And my page has an editor with "some content"
+    When I submit the code in the editor
+    Then I see an output box with "mock-from-cuke" in it
+

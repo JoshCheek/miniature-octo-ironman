@@ -16,6 +16,10 @@ class MiniatureOctoIronman < Sinatra::Base
     markdown :lesson1
   end
 
+  get '/custom_lesson' do
+    Moi::Manifest.new(MiniatureOctoIronman::ENDPOINT_CONFIGURATION)
+    markdown :lesson1
+  end
 
   get '/run' do
     content_type :json
