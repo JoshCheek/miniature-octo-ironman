@@ -17,18 +17,22 @@ describe 'managing Moi::Manifest::Endpoint' do
     Endpoint.new attributes
   end
   let(:repo)             { fs.upstream_repo_path }
-  let(:ref)              { 'someref'             }
+  let(:ref)              { fs.current_sha fs.upstream_repo_path }
   let(:file)             { 'somefile'            }
   let(:owner)            { 'someowner'           }
   let(:webpath)          { 'somewebpath'         }
   let(:valid_attributes) {{repo: repo, ref: ref, file: file, owner: owner, webpath: webpath, datadir: datadir}}
   let(:endpoint)         { endpoint_for valid_attributes }
 
-  describe '.retrieve' do
-    def retrieve(endpoint)
-      Endpoint.retrieve(endpoint)
-    end
+  def retrieve(endpoint)
+    Endpoint.retrieve(endpoint)
+  end
 
+  def fetch_file(endpoint, filepath)
+    Endpoint.fetch_file(endpoint, filepath)
+  end
+
+  describe '.retrieve' do
     it 'raises if there is no repo' do
       endpoint.repo = nil
       expect { retrieve endpoint }
@@ -48,11 +52,6 @@ describe 'managing Moi::Manifest::Endpoint' do
         expect(gitconfig).to match /remote.*?origin/
         expect(gitconfig).to include "url = #{endpoint.repo}"
       end
-    end
-
-    it 'returns true if it cloned the repo' do
-      expect(retrieve endpoint).to eq true
-      expect(retrieve endpoint).to eq false
     end
 
     it 'does nothing if the repo already exists' do
@@ -75,7 +74,42 @@ describe 'managing Moi::Manifest::Endpoint' do
     end
   end
 
-  describe '#read' do
+  describe '#fetch_file(endpoint, filepath)' do
+    # shitty to depend on 'somefile' and 'some content'
+    # without seeing what they are and how they got that way,
+    # can we get this passed into fs from the test instead?
+    context 'when the ref is available' do
+      it 'returns the file body' do
+        retrieve endpoint
+        content = fetch_file(endpoint, 'somefile')
+        expect(content).to eq 'some content'
+      end
+    end
 
+    context 'when the ref is not available' do
+      it 'pulls to get the ref and returns the file body' do
+        content = fetch_file(endpoint, 'somefile')
+        expect(content).to eq 'some content'
+      end
+    end
+
+    example 'edge case: when there are multiple files' do
+      pending 'need to be able to stick multiple files in the upstream repo'
+      raise
+    end
+
+    context 'when the ref is a branch' do
+      # retrieve once
+      # check sha
+      # commit another file
+      # fetch_file again
+      # should get that body
+      it 'always pulls, and then retuns the file body'
+    end
+
+    describe 'errors' do
+      specify 'when the ref is not available'
+      specify 'when the file is not available'
+    end
   end
 end

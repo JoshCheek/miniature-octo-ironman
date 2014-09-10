@@ -78,6 +78,6 @@ class FsHelpers
   end
 
   def current_sha(path)
-    sh "git log --pretty=format:%H -1"
+    sh "git --git-dir=#{path}/.git log --pretty=format:%H -1"
   end
 end

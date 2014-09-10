@@ -64,13 +64,22 @@ module Moi
           repo   = Rugged::Repository.new(endpoint.fullpath)
           remote = repo.remotes.find { |remote| remote.url == endpoint.repo }
           remote or raise Endpoint::WatsGoinOnHere, "Expected to have a remote for #{endpoint.repo.inspect}, but only had #{repo.remotes.map(&:url).inspect}"
-          false
         rescue Rugged::OSError
           Rugged::Repository.clone_at(endpoint.repo, endpoint.fullpath)
-          true
         rescue Rugged::RepositoryError => e
           raise Endpoint::WatsGoinOnHere, e.message
         end
+      end
+
+      def fetch_file(endpoint, filepath)
+        retrieve endpoint
+        # repo.exists? endpoint.ref
+        repo   = Rugged::Repository.new(endpoint.fullpath)
+        commit = repo.rev_parse endpoint.ref
+        tree   = commit.tree
+        path   = tree.path filepath
+        blob   = repo.lookup path[:oid]
+        blob.content
       end
     end
 
