@@ -93,11 +93,6 @@ describe 'managing Moi::Manifest::Endpoint' do
       end
     end
 
-    example 'edge case: when there are multiple files' do
-      pending 'need to be able to stick multiple files in the upstream repo'
-      raise
-    end
-
     context 'when the ref is a branch' do
       # retrieve once
       # check sha
@@ -105,6 +100,36 @@ describe 'managing Moi::Manifest::Endpoint' do
       # fetch_file again
       # should get that body
       it 'always pulls, and then retuns the file body'
+    end
+
+    context 'edge cases' do
+      example 'when there are multiple files' do
+        fs.cd fs.upstream_repo_path do
+          fs.write 'another-file', 'more-contents'
+          fs.sh "git add ."
+          fs.sh "git commit -m 'added another file'"
+        end
+        expect(fetch_file endpoint, 'another-file').to eq 'more-contents'
+      end
+
+      example 'when there are multiple versions', t:true do
+        filename = 'somefile'
+        fs.cd fs.upstream_repo_path do
+          fs.write filename, 'contents-old'
+          fs.sh 'git add .'
+          fs.sh 'git commit -m "message-old"'
+          fs.write filename, 'contents-new'
+          fs.sh 'git add .'
+          fs.sh 'git commit -m "message-new"'
+        end
+        sha_new, sha_old = fs.current_sha(fs.upstream_repo_path, 2)
+
+        endpoint.ref = sha_old
+        expect(fetch_file endpoint, filename).to eq 'contents-old'
+
+        endpoint.ref = sha_new
+        expect(fetch_file endpoint, filename).to eq 'contents-new'
+      end
     end
 
     describe 'errors' do

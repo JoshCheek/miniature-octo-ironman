@@ -77,7 +77,13 @@ class FsHelpers
     binding.pry
   end
 
-  def current_sha(path)
-    sh "git --git-dir=#{path}/.git log --pretty=format:%H -1"
+  def current_sha(path, size=1)
+    shas_string = sh "git --git-dir=#{path}/.git log --pretty=format:%H -#{size}"
+    lines = shas_string.lines
+    if lines.size == 1
+      lines.first
+    else
+      lines.map(&:chomp)
+    end
   end
 end
