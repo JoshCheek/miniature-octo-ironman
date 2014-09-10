@@ -74,7 +74,7 @@ describe 'managing Moi::Manifest::Endpoint' do
     end
   end
 
-  describe '#fetch_file(endpoint, filepath)' do
+  describe '#fetch_file(endpoint, filepath)', t:true do
     # shitty to depend on 'somefile' and 'some content'
     # without seeing what they are and how they got that way,
     # can we get this passed into fs from the test instead?
@@ -133,8 +133,16 @@ describe 'managing Moi::Manifest::Endpoint' do
     end
 
     describe 'errors' do
-      specify 'when the ref is not available'
-      specify 'when the file is not available'
+      specify 'when the ref is not available' do
+        endpoint.ref = 'not-a-ref'
+        expect { fetch_file endpoint, endpoint.file }
+          .to raise_error Moi::Manifest::Endpoint::MissingReference, /not-a-ref/
+      end
+
+      specify 'when the file is not available' do
+        expect { fetch_file endpoint, 'not-a-file' }
+          .to raise_error Moi::Manifest::Endpoint::MissingFile, /not-a-file/
+      end
     end
   end
 end

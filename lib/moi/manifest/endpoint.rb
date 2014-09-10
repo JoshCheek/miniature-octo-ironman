@@ -4,8 +4,10 @@ require 'rugged'
 module Moi
   class Manifest
     class Endpoint
-      ManifestError  = Class.new StandardError
-      WatsGoinOnHere = Class.new ManifestError
+      ManifestError    = Class.new StandardError
+      WatsGoinOnHere   = Class.new ManifestError
+      MissingReference = Class.new ManifestError
+      MissingFile      = Class.new ManifestError
 
       # TODO: renamings:
       #   repo     -> repo_path
@@ -80,6 +82,10 @@ module Moi
         path   = tree.path filepath
         blob   = repo.lookup path[:oid]
         blob.content
+      rescue Rugged::ReferenceError
+        raise Endpoint::MissingReference, "Couldn't find refreence #{endpoint.ref.inspect}"
+      rescue Rugged::TreeError
+        raise Endpoint::MissingFile, "Couldn't find the file #{filepath.inspect}"
       end
     end
 
