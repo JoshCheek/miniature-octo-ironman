@@ -5,7 +5,6 @@
     %link{:href => "normalize.css", :media => "screen", :rel => "StyleSheet", :type => "text/css"}
     %link{:href => "foundation.css", :media => "screen", :rel => "StyleSheet", :type => "text/css"}
     %link{:href => "custom_css.css", :media => "screen", :rel => "StyleSheet", :type => "text/css"}
-    %script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
 
   %body
     .main-content
@@ -14,7 +13,9 @@
           Minature-Octo-Ironman
           |
           %a(href="https://github.com/JoshCheek/miniature-octo-ironman/") Fork me
+
       = yield
 
-      %script{:charset => "utf-8", :src => "//cdn.jsdelivr.net/ace/1.1.5/min/ace.js", :type => "text/javascript"}
-      %script{:src => "code_handler.js"}
+  %script(src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+  %script(charset="utf-8" src="//cdn.jsdelivr.net/ace/1.1.5/min/ace.js" type="text/javascript")
+  %script(src="code_handler.js")
