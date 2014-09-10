@@ -75,15 +75,24 @@ module Moi
 
       def fetch_file(endpoint, filepath)
         retrieve endpoint
-        # repo.exists? endpoint.ref
-        repo   = Rugged::Repository.new(endpoint.fullpath)
-        commit = repo.rev_parse endpoint.ref
+        repo = Rugged::Repository.new(endpoint.fullpath)
+        endpoint_name = endpoint.ref
+
+        branch = repo.branches
+          .select(&:remote?)
+          .find { |branch| branch.name.split("/").last == endpoint_name }
+        if branch
+          branch.remote.fetch
+          endpoint_name = branch.name
+        end
+
+        commit = repo.rev_parse endpoint_name
         tree   = commit.tree
         path   = tree.path filepath
         blob   = repo.lookup path[:oid]
         blob.content
       rescue Rugged::ReferenceError
-        raise Endpoint::MissingReference, "Couldn't find refreence #{endpoint.ref.inspect}"
+        raise Endpoint::MissingReference, "Couldn't find reference #{endpoint_name.inspect}"
       rescue Rugged::TreeError
         raise Endpoint::MissingFile, "Couldn't find the file #{filepath.inspect}"
       end

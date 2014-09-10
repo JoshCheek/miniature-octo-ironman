@@ -2,7 +2,6 @@ require 'moi/manifest'
 require 'spec_helper'
 
 # TODO:
-#   finish these tests
 #   refactor tests/helpers
 #   perform renamings in Endpoint
 #   more helpful tests on WatsGoinOnHere stuffs
@@ -80,7 +79,7 @@ describe 'managing Moi::Manifest::Endpoint' do
     end
   end
 
-  describe '#fetch_file(endpoint, filepath)', t:true do
+  describe '.fetch_file(endpoint, filepath)' do
     # shitty to depend on 'somefile' and 'some content'
     # without seeing what they are and how they got that way,
     # can we get this passed into fs from the test instead?
@@ -100,12 +99,23 @@ describe 'managing Moi::Manifest::Endpoint' do
     end
 
     context 'when the ref is a branch' do
-      # retrieve once
-      # check sha
-      # commit another file
-      # fetch_file again
-      # should get that body
-      it 'always pulls, and then retuns the file body'
+      it 'always pulls, and then returns the file body' do
+        endpoint.ref = 'master'
+        fetch_file endpoint, 'somefile'
+
+        fs.cd fs.upstream_repo_path do
+          fs.write 'somefile', 'modified'
+          fs.sh "git add ."
+          fs.sh "git commit -m 'modified the file upstream'"
+        end
+
+        fs.cd endpoint.fullpath do
+          fs.sh "git checkout -b delete-your-masters"
+          fs.sh "git br -D master"
+        end
+
+        expect(fetch_file endpoint, 'somefile').to eq 'modified'
+      end
     end
 
     context 'edge cases' do
@@ -118,7 +128,7 @@ describe 'managing Moi::Manifest::Endpoint' do
         expect(fetch_file endpoint, 'another-file').to eq 'more-contents'
       end
 
-      example 'when there are multiple versions', t:true do
+      example 'when there are multiple versions' do
         filename = 'somefile'
         fs.cd fs.upstream_repo_path do
           fs.write filename, 'contents-old'
