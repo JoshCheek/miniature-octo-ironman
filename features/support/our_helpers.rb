@@ -45,9 +45,8 @@ module OurHelpers
   end
 
   def start_server
-    require 'webrick'
     OurHelpers.server_thread = Thread.new {
-      Rack::Server.start app: OurHelpers.server.new, Port: 1235, server: 'webrick', AccessLog: [] , Logger: WEBrick::Log.new(StringIO.new)
+      Rack::Server.start app: OurHelpers.server.new, Port: 1235, server: 'puma'
     }
   end
 
