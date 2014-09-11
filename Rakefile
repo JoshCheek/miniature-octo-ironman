@@ -17,4 +17,8 @@ task :server do
   sh 'bundle exec rackup'
 end
 
-task default: :cuke
+task :spec do
+  sh 'bundle exec rspec'
+end
+
+task default: [:cuke, :spec]
