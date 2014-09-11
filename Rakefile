@@ -21,4 +21,4 @@ task :spec do
   sh 'bundle exec rspec'
 end
 
-task default: [:cuke, :spec]
+task default: [:spec, :cuke]
