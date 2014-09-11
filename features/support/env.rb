@@ -1,5 +1,6 @@
 # load our helpers
 $LOAD_PATH.unshift File.expand_path('../..', __FILE__)
+$LOAD_PATH.unshift File.expand_path('../../../lib', __FILE__)
 require 'support/shitty_stub' # TODO: These get required here, but then loaded by Cucumber afterwards. Idk how everyone else deals with this, might become a problem
 require 'support/our_helpers'
 

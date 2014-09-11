@@ -23,7 +23,6 @@ module Moi
     end
 
     include Enumerable
-
     def each(&block)
       endpoints.each(&block)
     end

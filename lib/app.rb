@@ -2,10 +2,13 @@ require 'sinatra/base'
 require 'redcarpet'
 require 'haml'
 require 'eval_in'
+require 'moi'
 
 Haml::Options.defaults[:ugly] = true
 
 class MiniatureOctoIronman < Sinatra::Base
+  ENDPOINT_CONFIGURATION = Moi::Manifest.new []
+
   set :markdown, layout_engine: :haml, layout: :layout
 
   get '/' do
@@ -13,11 +16,6 @@ class MiniatureOctoIronman < Sinatra::Base
   end
 
   get '/lesson1' do
-    markdown :lesson1
-  end
-
-  get '/custom_lesson' do
-    Moi::Manifest.new(MiniatureOctoIronman::ENDPOINT_CONFIGURATION)
     markdown :lesson1
   end
 
@@ -35,5 +33,16 @@ class MiniatureOctoIronman < Sinatra::Base
     #   status:            "OK (0.052 sec real, 0.059 sec wall, 9 MB, 18 syscalls)",
     #   url:               "https://eval.in/189558.json"
     # ).to_json
+  end
+
+  get '/:owner/:webpath' do
+    endpoint = ENDPOINT_CONFIGURATION.find { |endpoint|
+      endpoint.owner == params[:owner] &&
+        endpoint.webpath == params[:webpath]
+    }
+    markdown Moi::Manifest::Endpoint.fetch_file(
+      endpoint,
+      endpoint.file,
+    )
   end
 end

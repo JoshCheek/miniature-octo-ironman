@@ -36,11 +36,18 @@ Feature: Document with code that prints output
         "status":        "OK (0.052 sec real, 0.060 sec wall, 9 MB, 18 syscalls)"
       }
     """
-
     And the git repo exists
     And I have a configuration
-    When I visit "/custom_lesson"
-    And my page has an editor with "some content"
+    And the git repo has the file "my-lesson.md"
+    """
+    I came from a git repo!
+
+    <div class="interactive-code">
+      1+1
+    </div>
+    """
+    When I visit "/someowner/custom_lesson"
+    Then my page has "I came from a git repo" on it
+    And my page has an editor with "1+1"
     When I submit the code in the editor
     Then I see an output box with "mock-from-cuke" in it
-
