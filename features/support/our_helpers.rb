@@ -71,12 +71,12 @@ module OurHelpers
   require 'moi/manifest/endpoint'
   def endpoint
     Moi::Manifest::Endpoint.new(
-      repo:    file_helper.upstream_repo_path,
-      ref:     file_helper.current_sha(file_helper.upstream_repo_path),
-      file:    'somefile',
-      owner:   'someowner',
-      webpath: 'custom_lesson',
-      datadir: file_helper.datadir,
+      repopath: file_helper.upstream_repo_path,
+      ref:      file_helper.current_sha(file_helper.upstream_repo_path),
+      file:     'somefile',
+      owner:    'someowner',
+      webpath:  'custom_lesson',
+      datadir:  file_helper.datadir,
     )
   end
 end

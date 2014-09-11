@@ -21,12 +21,12 @@ describe 'managing Moi::Manifest::Endpoint' do
   def endpoint_for(attributes)
     Endpoint.new attributes
   end
-  let(:repo)             { fs.upstream_repo_path }
+  let(:repopath)         { fs.upstream_repo_path }
   let(:ref)              { fs.current_sha fs.upstream_repo_path }
   let(:file)             { 'somefile'            }
   let(:owner)            { 'someowner'           }
   let(:webpath)          { 'somewebpath'         }
-  let(:valid_attributes) {{repo: repo, ref: ref, file: file, owner: owner, webpath: webpath, datadir: datadir}}
+  let(:valid_attributes) {{repopath: repopath, ref: ref, file: file, owner: owner, webpath: webpath, datadir: datadir}}
   let(:endpoint)         { endpoint_for valid_attributes }
 
   def retrieve(endpoint)
@@ -38,10 +38,10 @@ describe 'managing Moi::Manifest::Endpoint' do
   end
 
   describe '.retrieve' do
-    it 'raises if there is no repo' do
-      endpoint.repo = nil
+    it 'raises if there is no repopath' do
+      endpoint.repopath = nil
       expect { retrieve endpoint }
-        .to raise_error ArgumentError, /must have a repo/i
+        .to raise_error ArgumentError, /must have a repopath/i
     end
 
     it 'raises if there is no fullpath' do
@@ -55,15 +55,15 @@ describe 'managing Moi::Manifest::Endpoint' do
       fs.cd endpoint.fullpath do
         gitconfig = File.read('.git/config')
         expect(gitconfig).to match /remote.*?origin/
-        expect(gitconfig).to include "url = #{endpoint.repo}"
+        expect(gitconfig).to include "url = #{endpoint.repopath}"
       end
     end
 
-    it 'does nothing if the repo already exists' do
+    it 'does nothing if the repopath already exists' do
       retrieve endpoint
       retrieve endpoint
       cloned_sha   = fs.current_sha(endpoint.fullpath)
-      upstream_sha = fs.current_sha(endpoint.repo)
+      upstream_sha = fs.current_sha(endpoint.repopath)
       expect(cloned_sha).to eq upstream_sha
     end
 
@@ -74,7 +74,7 @@ describe 'managing Moi::Manifest::Endpoint' do
 
     it 'raises an error if there is a repo at the localpath, and it is the wrong one' do
       upstream_path = fs.make_upstream_repo(1)
-      retrieve Endpoint.new(datadir: datadir, repo: upstream_path, localpath: endpoint.localpath)
+      retrieve Endpoint.new(datadir: datadir, repopath: upstream_path, localpath: endpoint.localpath)
       expect { retrieve endpoint }.to raise_error Endpoint::WatsGoinOnHere
     end
   end
