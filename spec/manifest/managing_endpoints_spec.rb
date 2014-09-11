@@ -23,10 +23,10 @@ describe 'managing Moi::Manifest::Endpoint' do
   end
   let(:repopath)         { fs.upstream_repo_path }
   let(:ref)              { fs.current_sha fs.upstream_repo_path }
-  let(:file)             { 'somefile'            }
-  let(:owner)            { 'someowner'           }
-  let(:webpath)          { 'somewebpath'         }
-  let(:valid_attributes) {{repopath: repopath, ref: ref, file: file, owner: owner, webpath: webpath, datadir: datadir}}
+  let(:main_filename)    { 'somefile' }
+  let(:owner)            { 'someowner' }
+  let(:webpath)          { 'somewebpath' }
+  let(:valid_attributes) {{repopath: repopath, ref: ref, main_filename: main_filename, owner: owner, webpath: webpath, datadir: datadir}}
   let(:endpoint)         { endpoint_for valid_attributes }
 
   def retrieve(endpoint)
@@ -151,7 +151,7 @@ describe 'managing Moi::Manifest::Endpoint' do
     describe 'errors' do
       specify 'when the ref is not available' do
         endpoint.ref = 'not-a-ref'
-        expect { fetch_file endpoint, endpoint.file }
+        expect { fetch_file endpoint, endpoint.main_filename }
           .to raise_error Moi::Manifest::Endpoint::MissingReference, /not-a-ref/
       end
 

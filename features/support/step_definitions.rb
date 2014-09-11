@@ -23,7 +23,7 @@ Given 'the git repo has the file "$filename"' do |filename, body|
     file_helper.sh "git add ."
     file_helper.sh "git commit -m 'some commit'"
     e = MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints.last
-    e.file = filename
+    e.main_filename = filename
     e.ref = file_helper.current_sha('.')
   end
 end

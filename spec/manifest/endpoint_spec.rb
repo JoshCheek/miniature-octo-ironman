@@ -8,20 +8,20 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
 
   let(:repopath)         { "https://github.com/JoshCheek/#{reponame}.git" }
   let(:ref)              { 'someref'                                      }
-  let(:file)             { 'somefile'                                     }
+  let(:main_filename)    { 'somefile'                                     }
   let(:owner)            { 'someowner'                                    }
   let(:webpath)          { 'somewebpath'                                  }
   let(:datadir)          { '/somedatadir'                                 }
-  let(:valid_attributes) {{repopath: repopath, ref: ref, file: file, owner: owner, webpath: webpath, datadir: datadir}}
+  let(:valid_attributes) {{repopath: repopath, ref: ref, main_filename: main_filename, owner: owner, webpath: webpath, datadir: datadir}}
   let(:endpoint)         { endpoint_for valid_attributes }
 
-  it 'has a git repopath, ref, file, owner, datadir, and webpath' do
-    expect(endpoint.repopath).to eq repopath
-    expect(endpoint.ref     ).to eq ref
-    expect(endpoint.file    ).to eq file
-    expect(endpoint.owner   ).to eq owner
-    expect(endpoint.webpath ).to eq webpath
-    expect(endpoint.datadir ).to eq datadir
+  it 'has a git repopath, ref, main_filename, owner, datadir, and webpath' do
+    expect(endpoint.repopath     ).to eq repopath
+    expect(endpoint.ref          ).to eq ref
+    expect(endpoint.main_filename).to eq main_filename
+    expect(endpoint.owner        ).to eq owner
+    expect(endpoint.webpath      ).to eq webpath
+    expect(endpoint.datadir      ).to eq datadir
   end
 
   describe '#localpath/#absolute_path' do
@@ -61,7 +61,7 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
   context 'validation/errors' do
     def each_invalid
       return to_enum :each_invalid unless block_given?
-      [:repopath, :ref, :file, :owner, :webpath, :datadir].each do |attribute|
+      [:repopath, :ref, :main_filename, :owner, :webpath, :datadir].each do |attribute|
         invalid_attributs = valid_attributes.reject { |k, v| k == attribute }
         yield attribute, endpoint_for(invalid_attributs)
       end

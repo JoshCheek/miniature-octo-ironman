@@ -42,7 +42,7 @@ class MiniatureOctoIronman < Sinatra::Base
     }
     markdown Moi::Manifest::Endpoint.fetch_file(
       endpoint,
-      endpoint.file,
+      endpoint.main_filename,
     )
   end
 end

@@ -9,10 +9,7 @@ module Moi
       MissingReference = Class.new ManifestError
       MissingFile      = Class.new ManifestError
 
-      # TODO: renamings:
-      #   file     -> main_filename
-
-      ATTRIBUTE_NAMES = [:repopath, :ref, :file, :owner, :webpath, :localpath, :datadir].freeze
+      ATTRIBUTE_NAMES = [:repopath, :ref, :main_filename, :owner, :webpath, :localpath, :datadir].freeze
       attr_accessor *ATTRIBUTE_NAMES
 
       def initialize(attributes)
@@ -92,7 +89,7 @@ module Moi
       rescue Rugged::ReferenceError
         raise Endpoint::MissingReference, "Couldn't find reference #{endpoint_name.inspect}"
       rescue Rugged::TreeError
-        raise Endpoint::MissingFile, "Couldn't find the file #{filepath.inspect}"
+        raise Endpoint::MissingFile, "Couldn't find the main_filename #{filepath.inspect}"
       end
     end
 
