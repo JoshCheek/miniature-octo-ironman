@@ -10,7 +10,6 @@ module Moi
       MissingFile      = Class.new ManifestError
 
       # TODO: renamings:
-      #   fullpath -> absolute_path
       #   file     -> main_filename
 
       ATTRIBUTE_NAMES = [:repopath, :ref, :file, :owner, :webpath, :localpath, :datadir].freeze
@@ -22,7 +21,7 @@ module Moi
         ATTRIBUTE_NAMES.each { |attribute| self.__send__ "#{attribute}=", attributes[attribute] }
       end
 
-      def fullpath
+      def absolute_path
         datadir && localpath && File.join(datadir, localpath)
       end
 
@@ -40,8 +39,8 @@ module Moi
           "Missing attributes: #{missing.inspect}"
         elsif localpath && localpath.start_with?("/")
           "localpath should not be absolute, but it is #{localpath.inspect}"
-        elsif !fullpath.start_with?('/')
-          "fullpath should be absolute, but it is #{fullpath.inspect}"
+        elsif !absolute_path.start_with?('/')
+          "absolute_path should be absolute, but it is #{absolute_path.inspect}"
         end
       end
 
@@ -59,14 +58,14 @@ module Moi
 
     class << Endpoint
       def retrieve(endpoint)
-        endpoint.repopath     or raise ArgumentError, "Must have a repopath to retrieve, but #{endpoint.inspect} does not"
-        endpoint.fullpath or raise ArgumentError, "Must have a fullpath to retrieve, but #{endpoint.inspect} does not"
+        endpoint.repopath      or raise ArgumentError, "Must have a repopath to retrieve, but #{endpoint.inspect} does not"
+        endpoint.absolute_path or raise ArgumentError, "Must have a absolute path to retrieve, but #{endpoint.inspect} does not"
         begin
-          repo   = Rugged::Repository.new(endpoint.fullpath)
+          repo   = Rugged::Repository.new(endpoint.absolute_path)
           remote = repo.remotes.find { |remote| remote.url == endpoint.repopath }
           remote or raise Endpoint::WatsGoinOnHere, "Expected to have a remote for #{endpoint.repopath.inspect}, but only had #{repo.remotes.map(&:url).inspect}"
         rescue Rugged::OSError
-          Rugged::Repository.clone_at(endpoint.repopath, endpoint.fullpath)
+          Rugged::Repository.clone_at(endpoint.repopath, endpoint.absolute_path)
         rescue Rugged::RepositoryError => e
           raise Endpoint::WatsGoinOnHere, e.message
         end
@@ -74,7 +73,7 @@ module Moi
 
       def fetch_file(endpoint, filepath)
         retrieve endpoint
-        repo = Rugged::Repository.new(endpoint.fullpath)
+        repo = Rugged::Repository.new(endpoint.absolute_path)
         endpoint_name = endpoint.ref
 
         branch = repo.branches

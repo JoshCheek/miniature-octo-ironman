@@ -44,15 +44,15 @@ describe 'managing Moi::Manifest::Endpoint' do
         .to raise_error ArgumentError, /must have a repopath/i
     end
 
-    it 'raises if there is no fullpath' do
+    it 'raises if there is no absolute_path' do
       endpoint.datadir = nil
       expect { retrieve endpoint }
-        .to raise_error ArgumentError, /must have a fullpath/i
+        .to raise_error ArgumentError, /must have a absolute path/i
     end
 
     it 'clones the repo if the repo DNE' do
       retrieve endpoint
-      fs.cd endpoint.fullpath do
+      fs.cd endpoint.absolute_path do
         gitconfig = File.read('.git/config')
         expect(gitconfig).to match /remote.*?origin/
         expect(gitconfig).to include "url = #{endpoint.repopath}"
@@ -62,13 +62,13 @@ describe 'managing Moi::Manifest::Endpoint' do
     it 'does nothing if the repopath already exists' do
       retrieve endpoint
       retrieve endpoint
-      cloned_sha   = fs.current_sha(endpoint.fullpath)
+      cloned_sha   = fs.current_sha(endpoint.absolute_path)
       upstream_sha = fs.current_sha(endpoint.repopath)
       expect(cloned_sha).to eq upstream_sha
     end
 
     it 'raises an error if there is something at the localpath which is not a repository' do
-      fs.mkdir(endpoint.fullpath)
+      fs.mkdir(endpoint.absolute_path)
       expect { retrieve endpoint }.to raise_error Endpoint::WatsGoinOnHere
     end
 
@@ -109,7 +109,7 @@ describe 'managing Moi::Manifest::Endpoint' do
           fs.sh "git commit -m 'modified the file upstream'"
         end
 
-        fs.cd endpoint.fullpath do
+        fs.cd endpoint.absolute_path do
           fs.sh "git checkout -b delete-your-masters"
           fs.sh "git br -D master"
         end

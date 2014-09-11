@@ -24,10 +24,10 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
     expect(endpoint.datadir ).to eq datadir
   end
 
-  describe '#localpath/#fullpath' do
+  describe '#localpath/#absolute_path' do
     context 'when there is not a localpath' do
       it 'chooses a localpath of the_owner/reponame, within the datadir' do
-        expect(endpoint.fullpath).to  eq "#{datadir}/#{owner}/#{reponame}"
+        expect(endpoint.absolute_path).to  eq "#{datadir}/#{owner}/#{reponame}"
         expect(endpoint.localpath).to eq "#{owner}/#{reponame}"
       end
     end
@@ -35,7 +35,7 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
     context 'when there is a localpath' do
       it 'respects the localpath, but still assumes it is within the datadir' do
         endpoint.localpath = "a/b/c"
-        expect(endpoint.fullpath).to  eq "#{datadir}/a/b/c"
+        expect(endpoint.absolute_path).to  eq "#{datadir}/a/b/c"
         expect(endpoint.localpath).to eq "a/b/c"
       end
     end
@@ -47,8 +47,8 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
         expect(endpoint.localpath).to eq "#{owner}/#{reponame}"
       end
 
-      it 'has no fullpath' do
-        expect(endpoint.fullpath).to eq nil
+      it 'has no absolute_path' do
+        expect(endpoint.absolute_path).to eq nil
       end
     end
   end
@@ -91,10 +91,10 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
       expect(endpoint.error).to match /localpath/
     end
 
-    it 'is invalid if fullpath is not absolute' do
+    it 'is invalid if absolute_path is not absolute' do
       endpoint = endpoint_for valid_attributes.merge(datadir: 'a')
       expect(endpoint).to_not be_valid
-      expect(endpoint.error).to match /fullpath/
+      expect(endpoint.error).to match /absolute_path/
     end
   end
 end
