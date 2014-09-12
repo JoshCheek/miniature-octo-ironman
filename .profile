@@ -1,2 +1,2 @@
 #!/bin/sh
-ZOMG=wtf
+export ZOMG=wtf
