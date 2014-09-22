@@ -26,12 +26,5 @@ state_path File.join(tmp_dir, 'puma.state')
 append_to_files = true
 stdout_redirect File.join(tmp_dir, 'puma_out.log'), File.join(tmp_dir, 'puma_err.log'), append_to_files
 
-# Bind the server to “url”. “tcp://”, “unix://” and “ssl://” are the only
-# accepted protocols.
-#
-# The default is “tcp://0.0.0.0:9292”.
-#
-# bind 'tcp://0.0.0.0:9292'
-# bind 'unix:///var/run/puma.sock'
-# bind 'unix:///var/run/puma.sock?umask=0777'
-# bind 'ssl://127.0.0.1:9292?key=path_to_key&cert=path_to_cert'
+# Serve on port 80
+bind 'tcp://0.0.0.0:80'
