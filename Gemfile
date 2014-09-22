@@ -3,21 +3,21 @@ source 'https://rubygems.org'
 # Interact with git (pull down repos to render for the manifest)
 gem 'rugged',        '~> 0.21.0'
 
-# serving the site
+# Serving the site
 gem 'puma',          '~> 2.9'   # web server
 gem 'sinatra',       '~> 1.4'   # web framework
 
-# handling requests
+# Handling requests
 gem 'eval_in',       '~> 0.1.6' # evaluate ruby code safely
 
-# rendering
+# Rendering
 gem 'haml',          '~> 4.0'   # Alternative syntax for HTML, our layout is the only thing that uses it currently
 gem 'redcarpet',     '~> 3.1'   # markdown parser
 
-# support
+# Support
 gem 'rake',          '~> 10.3'   # easily run tasks from the command-line
 
-# these will not be installed in production (Heroku)
+# These will not be installed in production
 group :test do
   gem 'pry',         '~> 0.10'  # because who would ever want to develop in an env without this?
   gem 'webmock',     '~> 1.18'  # to lock down the web, making sure we don't hit services while running tests
