@@ -1,7 +1,7 @@
 Overview
 --------
 
-Currently hosted [here](http://turingschool-moi.herokuapp.com/lesson1).
+Currently hosted [here](http://104.131.24.233/).
 
 I want to increase student engagement by embedding a runnable
 Ruby editor in the middle of their lessons. Then I can place
