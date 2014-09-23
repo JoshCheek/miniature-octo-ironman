@@ -29,8 +29,8 @@ module Moi
     def execute(command, world_overrides={})
       new_world = world
       world_overrides.each do |k, v|
-        raise "Not a world attribute! #{k.inspect}" unless new_world.key? k
-        new_world[k] = v
+        next new_world[k] = v if new_world.key? k
+        raise ArgumentError, "Not a world attribute! #{k.inspect}"
       end
       commands[command].call(world)
     end
@@ -65,8 +65,12 @@ class Moi::TestCommand < Moi::Command
         end
       end
 
-      def execute_mock_command(world_overrides={}, &call)
-        mock_commands['mock_command'] = Class.new(Moi::Command) { define_method(:call, &call) }
+      def add_mock_command(name, &body)
+        mock_commands[name] = Class.new(Moi::Command) { define_method(:call, &body) }
+      end
+
+      def execute_mock_command(world_overrides={}, &body)
+        add_mock_command 'mock_command', &body
         this.execute 'mock_command', world_overrides
       end
 
@@ -83,16 +87,55 @@ class Moi::TestCommand < Moi::Command
       end
 
       describe 'simple accessors to the passed in hash' do
-        specify '#env    returns the environment variables'
-        specify '#argv   returns the args the process was invoked with'
-        specify '#stdout returns the standard output stream'
-        specify '#stderr returns the standard error stream'
+        specify '#env    returns the environment variables' do
+          env = nil
+          execute_mock_command { env = self.env }
+          expect(env).to equal mock_env
+        end
+
+        specify '#argv   returns the args the process was invoked with' do
+          argv = nil
+          execute_mock_command { argv = self.argv }
+          expect(argv).to equal mock_argv
+        end
+
+        specify '#stdout returns the standard output stream' do
+          stdout = nil
+          execute_mock_command { stdout = self.stdout }
+          expect(stdout).to equal mock_stdout
+        end
+
+        specify '#stderr returns the standard error stream' do
+          stderr = nil
+          execute_mock_command { stderr = self.stderr }
+          expect(stderr).to equal mock_stderr
+        end
       end
 
       describe 'exectue' do
-        it 'invokes the specified command'
-        it 'accepts overrides for command\'s world attributes'
-        it 'blows up if override is not a world attribute'
+        it 'invokes the specified command' do
+          seen = []
+          add_mock_command('1') { seen << 'from command1' }
+          add_mock_command('2') { seen << 'from command2' }
+
+          execute_mock_command { execute '1' }
+          expect(seen).to eq ['from command1']
+
+          execute_mock_command { execute '2' }
+          expect(seen).to eq ['from command1', 'from command2']
+        end
+
+        it 'accepts overrides for command\'s world attributes' do
+          argv = nil
+          add_mock_command('c1') { argv = self.argv }
+          execute_mock_command { execute 'c1', argv: [1,2,3] }
+          expect(argv).to eq [1,2,3]
+        end
+
+        it 'blows up if override is not a world attribute' do
+          expect { execute_mock_command { execute 'c1', not_an_attribute: 1 } }
+            .to raise_error ArgumentError, /not_an_attribute/
+        end
       end
     end
 
@@ -100,6 +143,8 @@ class Moi::TestCommand < Moi::Command
     exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
   end
 end
+
+
 
 commands = {
   'test' => Moi::TestCommand,
