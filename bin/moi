@@ -2,7 +2,6 @@
 
 # TODO: namespace under command
 # TODO: add a specification to assert that they are subclasses of Moi::Command and they are namespaced under Moi::Command
-# TODO: pull the describes out and throw them on the bottom
 
 module Moi
   class Command
@@ -47,6 +46,16 @@ end
 
 
 class Moi::TestCommand < Moi::Command
+  class << self
+    def described_commands
+      @described_commands ||= []
+    end
+
+    def describe_command(name, command_class, &spec)
+      described_commands << [name, command_class, spec]
+    end
+  end
+
   def short_description
     'Run this binary\'s tests against itself'
   end
@@ -54,14 +63,18 @@ class Moi::TestCommand < Moi::Command
   def call
     require 'rspec/core'
     require 'stringio'
-    specify_Moi_Command
-    specify_help_command
-    specify_clone_command
-    rspec_argv = [] # --fail-fast --color --format documentation
-    exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
+    self.class.described_commands.each do |name, described_class, block|
+      description   = "#{name} -> #{described_class}"
+      description   = described_class unless name
+      example_group = RSpec.describe description, &block
+      add_helpers example_group, name, described_class
+    end
+    exit RSpec::Core::Runner.run([], stdout, stderr).to_i
   end
 
   module SpecHelpers
+    attr_accessor :last_exitstatus
+
     def build_command(short_description="command from test", &body)
       Class.new Moi::Command do
         define_method(:call, &body)
@@ -83,18 +96,15 @@ class Moi::TestCommand < Moi::Command
     end
 
     def execute_described_command
-      execute self.class.description
+      execute command_name
     end
   end
 
 
-  # looks like there's some fancy shit I can do with hooks in the config block,
-  # but wasn't really clear to me how to target them # at the level I want
-  # (toplevel contexts, conditionally) without using the include/extend syntax an hooking
-  # into the module's included hook, so just going to do the obvious thing.
-  def add_helpers_to(suite)
-    suite.send :attr_accessor, :last_exitstatus
+  def add_helpers(suite, command_name, command_class)
     pristine_commands = self.commands
+    suite.let(:command_name)   { command_name.dup }
+    suite.let(:command_class)  { command_class }
     suite.let(:mock_env)       { {} }
     suite.let(:mock_argv)      { [] }
     suite.let(:mock_exit)      { lambda { |status| self.last_exitstatus = status } }
@@ -105,127 +115,8 @@ class Moi::TestCommand < Moi::Command
     suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
     suite.include SpecHelpers
   end
-
-
-  def specify_Moi_Command
-    add_helpers_to RSpec.describe(Moi::Command) {
-      describe 'exit' do
-        it 'defaults to 0 (success)' do
-          execute_as_command { exit }
-          expect(last_exitstatus).to eq 0
-        end
-
-        it 'calls the real exit with the passed status' do
-          execute_as_command { exit 123 }
-          expect(last_exitstatus).to eq 123
-        end
-      end
-
-      describe 'simple accessors to the passed in hash' do
-        specify '#env    returns the environment variables' do
-          mock_env['PATH'] = '/p:/a'
-          execute_as_command { env['PATH'] << ':/t:/h' }
-          expect(mock_env['PATH']).to eq '/p:/a:/t:/h'
-        end
-
-        specify '#argv   returns the args the process was invoked with (minus the command itself)' do
-          mock_argv << '--color'
-          execute_as_command { argv << '--json' }
-          expect(mock_argv).to eq ['--color', '--json']
-        end
-
-        specify '#stdout returns the standard output stream' do
-          execute_as_command { stdout.puts "Informational output" }
-          expect(mock_stdout.string).to eq "Informational output\n"
-        end
-
-        specify '#stderr returns the standard error stream' do
-          execute_as_command { stderr.puts "Debugging output" }
-          expect(mock_stderr.string).to eq "Debugging output\n"
-        end
-      end
-
-      describe 'exectue' do
-        it 'invokes the specified command' do
-          seen = []
-          add_command('1') { seen << 'from command1' }
-          add_command('2') { seen << 'from command2' }
-
-          execute_as_command { execute '1' }
-          expect(seen).to eq ['from command1']
-
-          execute_as_command { execute '2' }
-          expect(seen).to eq ['from command1', 'from command2']
-        end
-
-        it 'accepts overrides for command\'s world attributes' do
-          argv = nil
-          add_command('c1') { argv = self.argv }
-          execute_as_command { execute 'c1', argv: [1,2,3] }
-          expect(argv).to eq [1,2,3]
-        end
-
-        it 'blows up if the overriden attribute is not a world attribute' do
-          expect { execute_as_command { execute 'c1', not_an_attribute: 1 } }
-            .to raise_error ArgumentError, /not_an_attribute/
-        end
-      end
-
-      describe 'short_description' do
-        it 'describes what the command does' do
-          expect(Moi::TestCommand.new(mock_world).short_description)
-            .to eq 'Run this binary\'s tests against itself'
-        end
-
-        it 'must be overridden by subclasses' do
-          expect { Class.new(Moi::Command).new(mock_world).short_description }
-            .to raise_error NotImplementedError, /subclass/i
-        end
-      end
-
-      describe 'call' do
-        it 'is what does the command\'s work' do
-          mock_command = build_command { stdout.puts "doing work" }.new(mock_world)
-          expect(mock_stdout.string).to eq ""
-          mock_command.call
-          expect(mock_stdout.string).to eq "doing work\n"
-        end
-
-        it 'must be overridden by subclasses' do
-          expect { Class.new(Moi::Command).new(mock_world).call }
-            .to raise_error NotImplementedError, /subclass/i
-        end
-      end
-    }
-  end
-
-  def specify_help_command
-    add_helpers_to RSpec.describe('help') {
-      it 'prints usage info' do
-        execute_described_command
-        expect(mock_stdout.string).to include 'Usage'
-      end
-
-      it 'has a short description for each available command' do
-        execute_described_command
-
-        mock_commands.each do |command_name, command|
-          expect(mock_stdout.string).to include command_name
-          expect(mock_stdout.string).to include command.new(mock_world).short_description
-        end
-      end
-    }
-  end
-
-  def specify_clone_command
-    add_helpers_to RSpec.describe('clone') {
-      it 'clones the github source to ~/moi-source' do
-        pending 'needs a home, sh, and path command'
-        execute_described_command
-      end
-    }
-  end
 end
+
 
 
 class Moi::HelpCommand < Moi::Command
@@ -264,14 +155,134 @@ commands = {
 
 # TODO: ADD home TO WORLD
 # TODO: ADD sh COMMAND
-command, *argv = ARGV.dup
-command = commands[command].new env:      ENV,
-                                argv:     argv,
-                                stdin:    $stdin,
-                                stdout:   $stdout,
-                                stderr:   $stderr,
-                                exit:     Kernel.method(:exit),
-                                commands: commands
-command.call
-exit 0
+
+at_exit do
+  command, *argv = ARGV.dup
+  command = commands[command].new env:      ENV,
+                                  argv:     argv,
+                                  stdin:    $stdin,
+                                  stdout:   $stdout,
+                                  stderr:   $stderr,
+                                  exit:     Kernel.method(:exit),
+                                  commands: commands
+  command.call
+  exit 0
+end
 # sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
+
+
+# Below be the tests
+
+Moi::TestCommand.describe_command nil, Moi::Command do
+  describe 'exit' do
+    it 'defaults to 0 (success)' do
+      execute_as_command { exit }
+      expect(last_exitstatus).to eq 0
+    end
+
+    it 'calls the real exit with the passed status' do
+      execute_as_command { exit 123 }
+      expect(last_exitstatus).to eq 123
+    end
+  end
+
+  describe 'simple accessors to the passed in hash' do
+    specify '#env    returns the environment variables' do
+      mock_env['PATH'] = '/p:/a'
+      execute_as_command { env['PATH'] << ':/t:/h' }
+      expect(mock_env['PATH']).to eq '/p:/a:/t:/h'
+    end
+
+    specify '#argv   returns the args the process was invoked with (minus the command itself)' do
+      mock_argv << '--color'
+      execute_as_command { argv << '--json' }
+      expect(mock_argv).to eq ['--color', '--json']
+    end
+
+    specify '#stdout returns the standard output stream' do
+      execute_as_command { stdout.puts "Informational output" }
+      expect(mock_stdout.string).to eq "Informational output\n"
+    end
+
+    specify '#stderr returns the standard error stream' do
+      execute_as_command { stderr.puts "Debugging output" }
+      expect(mock_stderr.string).to eq "Debugging output\n"
+    end
+  end
+
+  describe 'exectue' do
+    it 'invokes the specified command' do
+      seen = []
+      add_command('1') { seen << 'from command1' }
+      add_command('2') { seen << 'from command2' }
+
+      execute_as_command { execute '1' }
+      expect(seen).to eq ['from command1']
+
+      execute_as_command { execute '2' }
+      expect(seen).to eq ['from command1', 'from command2']
+    end
+
+    it 'accepts overrides for command\'s world attributes' do
+      argv = nil
+      add_command('c1') { argv = self.argv }
+      execute_as_command { execute 'c1', argv: [1,2,3] }
+      expect(argv).to eq [1,2,3]
+    end
+
+    it 'blows up if the overriden attribute is not a world attribute' do
+      expect { execute_as_command { execute 'c1', not_an_attribute: 1 } }
+        .to raise_error ArgumentError, /not_an_attribute/
+    end
+  end
+
+  describe 'short_description' do
+    it 'describes what the command does' do
+      expect(Moi::TestCommand.new(mock_world).short_description)
+        .to eq 'Run this binary\'s tests against itself'
+    end
+
+    it 'must be overridden by subclasses' do
+      expect { Class.new(Moi::Command).new(mock_world).short_description }
+        .to raise_error NotImplementedError, /subclass/i
+    end
+  end
+
+  describe 'call' do
+    it 'is what does the command\'s work' do
+      mock_command = build_command { stdout.puts "doing work" }.new(mock_world)
+      expect(mock_stdout.string).to eq ""
+      mock_command.call
+      expect(mock_stdout.string).to eq "doing work\n"
+    end
+
+    it 'must be overridden by subclasses' do
+      expect { Class.new(Moi::Command).new(mock_world).call }
+        .to raise_error NotImplementedError, /subclass/i
+    end
+  end
+end
+
+
+Moi::TestCommand.describe_command 'help', Moi::HelpCommand do
+  it 'prints usage info' do
+    execute_described_command
+    expect(mock_stdout.string).to include 'Usage'
+  end
+
+  it 'has a short description for each available command' do
+    execute_described_command
+
+    mock_commands.each do |command_name, command|
+      expect(mock_stdout.string).to include command_name
+      expect(mock_stdout.string).to include command.new(mock_world).short_description
+    end
+  end
+end
+
+Moi::TestCommand.describe_command 'clone', Moi::CloneMoiCommand do
+  it 'clones the github source to ~/moi-source' do
+    pending 'needs a home, sh, and path command'
+    execute_described_command
+  end
+end
