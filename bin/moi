@@ -151,8 +151,7 @@ class Moi::Command::CloneMoi < Moi::Command
   end
 
   def call
-    raise NotImplementedError
-    # sh "git clone https://github.com/JoshCheek/miniature-octo-ironman.git #{path home, '/moi-source'}"
+    sh "git clone https://github.com/JoshCheek/miniature-octo-ironman.git #{File.join home_dir, 'moi-source'}"
   end
 end
 
@@ -308,7 +307,7 @@ end
 
 Moi::Command::Test.describe_command 'clone', Moi::Command::CloneMoi do
   it 'clones the github source to ~/moi-source' do
-    pending 'needs a home, sh, and path command'
     execute_described_command
+    expect(sh_queue).to eq ["git clone https://github.com/JoshCheek/miniature-octo-ironman.git /Users/josh/moi-source"]
   end
 end
