@@ -62,36 +62,36 @@ class Moi::TestCommand < Moi::Command
   # into the module's included hook, so just going to do the obvious thing.
   def add_helpers_to(suite)
     suite.send :attr_accessor, :last_exitstatus
-    actual_command = self
+    pristine_commands = self.commands
     suite.let(:mock_env)       { {} }
     suite.let(:mock_argv)      { [] }
     suite.let(:mock_exit)      { lambda { |status| self.last_exitstatus = status } }
     suite.let(:mock_stdin)     { StringIO.new }
     suite.let(:mock_stdout)    { StringIO.new }
     suite.let(:mock_stderr)    { StringIO.new }
-    suite.let(:mock_commands)  { actual_command.commands.dup }
+    suite.let(:mock_commands)  { pristine_commands.dup }
     suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
 
-    suite.around do |spec|
-      begin  real_world           = actual_command.world
-             actual_command.world = mock_world
-             spec.call
-      ensure actual_command.world = real_world
+    suite.class_eval do
+      def build_command(short_description="command from test", &body)
+        Class.new Moi::Command do
+          define_method(:call, &body)
+          define_method(:short_description) { short_description.dup }
+        end
       end
-    end
 
-    # suite.class_eval do end
-    suite.send :define_method, :add_mock_command do |name, &body|
-      mock_commands[name] = Class.new(Moi::Command) { define_method(:call, &body) }
-    end
+      def execute(command_name, overrides={})
+        build_command { execute command_name, overrides }.new(mock_world).call
+      end
 
-    suite.send :define_method, :execute_mock_command do |world_overrides={}, &body|
-      add_mock_command 'mock_command', &body
-      actual_command.execute 'mock_command', world_overrides
-    end
+      def add_command(name, &body)
+        mock_commands[name] = build_command(&body)
+      end
 
-    suite.send :define_method, :execute do |command, overrides={}|
-      actual_command.execute(command, overrides) # remember, we mock its workd
+      def execute_as_command(world_overrides={}, &body)
+        add_command 'mock_command', &body
+        execute 'mock_command', world_overrides
+      end
     end
   end
 
@@ -100,12 +100,12 @@ class Moi::TestCommand < Moi::Command
     add_helpers_to RSpec.describe('Moi::Command') {
       describe 'exit' do
         it 'defaults to 0 (success)' do
-          execute_mock_command { exit }
+          execute_as_command { exit }
           expect(last_exitstatus).to eq 0
         end
 
         it 'calls the real exit with the passed status' do
-          execute_mock_command { exit 123 }
+          execute_as_command { exit 123 }
           expect(last_exitstatus).to eq 123
         end
       end
@@ -113,23 +113,23 @@ class Moi::TestCommand < Moi::Command
       describe 'simple accessors to the passed in hash' do
         specify '#env    returns the environment variables' do
           mock_env['PATH'] = '/p:/a'
-          execute_mock_command { env['PATH'] << ':/t:/h' }
+          execute_as_command { env['PATH'] << ':/t:/h' }
           expect(mock_env['PATH']).to eq '/p:/a:/t:/h'
         end
 
         specify '#argv   returns the args the process was invoked with (minus the command itself)' do
           mock_argv << '--color'
-          execute_mock_command { argv << '--json' }
+          execute_as_command { argv << '--json' }
           expect(mock_argv).to eq ['--color', '--json']
         end
 
         specify '#stdout returns the standard output stream' do
-          execute_mock_command { stdout.puts "Informational output" }
+          execute_as_command { stdout.puts "Informational output" }
           expect(mock_stdout.string).to eq "Informational output\n"
         end
 
         specify '#stderr returns the standard error stream' do
-          execute_mock_command { stderr.puts "Debugging output" }
+          execute_as_command { stderr.puts "Debugging output" }
           expect(mock_stderr.string).to eq "Debugging output\n"
         end
       end
@@ -137,25 +137,25 @@ class Moi::TestCommand < Moi::Command
       describe 'exectue' do
         it 'invokes the specified command' do
           seen = []
-          add_mock_command('1') { seen << 'from command1' }
-          add_mock_command('2') { seen << 'from command2' }
+          add_command('1') { seen << 'from command1' }
+          add_command('2') { seen << 'from command2' }
 
-          execute_mock_command { execute '1' }
+          execute_as_command { execute '1' }
           expect(seen).to eq ['from command1']
 
-          execute_mock_command { execute '2' }
+          execute_as_command { execute '2' }
           expect(seen).to eq ['from command1', 'from command2']
         end
 
         it 'accepts overrides for command\'s world attributes' do
           argv = nil
-          add_mock_command('c1') { argv = self.argv }
-          execute_mock_command { execute 'c1', argv: [1,2,3] }
+          add_command('c1') { argv = self.argv }
+          execute_as_command { execute 'c1', argv: [1,2,3] }
           expect(argv).to eq [1,2,3]
         end
 
         it 'blows up if the overriden attribute is not a world attribute' do
-          expect { execute_mock_command { execute 'c1', not_an_attribute: 1 } }
+          expect { execute_as_command { execute 'c1', not_an_attribute: 1 } }
             .to raise_error ArgumentError, /not_an_attribute/
         end
       end
@@ -174,8 +174,7 @@ class Moi::TestCommand < Moi::Command
 
       describe 'call' do
         it 'is what does the command\'s work' do
-          add_mock_command('c') { stdout.puts "doing work" }
-          mock_command = mock_commands['c'].new(mock_world)
+          mock_command = build_command { stdout.puts "doing work" }.new(mock_world)
           expect(mock_stdout.string).to eq ""
           mock_command.call
           expect(mock_stdout.string).to eq "doing work\n"
