@@ -39,41 +39,46 @@ end
 
 
 class Moi::TestCommand < Moi::Command
+  # looks like there's some fancy shit I can do with hooks in the config block,
+  # but wasn't really clear to me how to target them # at the level I want
+  # (toplevel contexts, conditionally) without using the include/extend syntax an hooking
+  # into the module's included hook, so just going to do the obvious thing.
+  def add_helpers_to(suite)
+    actual_command = self
+    suite.send :attr_accessor, :last_exitstatus
+    suite.let(:mock_env)      { {} }
+    suite.let(:mock_argv)     { [] }
+    suite.let(:mock_exit)     { lambda { |status| self.last_exitstatus = status } }
+    suite.let(:mock_stdin)    { StringIO.new }
+    suite.let(:mock_stdout)   { StringIO.new }
+    suite.let(:mock_stderr)   { StringIO.new }
+    suite.let(:mock_commands) { actual_command.commands.dup }
+    suite.let(:mock_world)    { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
+
+    suite.around do |spec|
+      begin  real_world           = actual_command.world
+             actual_command.world = mock_world
+             spec.call
+      ensure actual_command.world = real_world
+      end
+    end
+
+    suite.send :define_method, :add_mock_command do |name, &body|
+      mock_commands[name] = Class.new(Moi::Command) { define_method(:call, &body) }
+    end
+
+    suite.send :define_method, :execute_mock_command do |world_overrides={}, &body|
+      add_mock_command 'mock_command', &body
+      actual_command.execute 'mock_command', world_overrides
+    end
+  end
+
+
   def call
-    this = self
     require 'rspec/core'
     require 'stringio'
-    RSpec.describe 'Moi::Command' do
-      attr_accessor :last_exitstatus
-      let(:this)          { this } # -.-
-      let(:mock_env)      { {} }
-      let(:mock_argv)     { [] }
-      let(:mock_exit)     { lambda { |status| self.last_exitstatus = status } }
-      let(:mock_stdin)    { StringIO.new }
-      let(:mock_stdout)   { StringIO.new }
-      let(:mock_stderr)   { StringIO.new }
-      let(:mock_commands) { this.commands.dup }
-      let(:mock_world)    { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
 
-      around do |spec|
-        begin
-          real_world = this.world
-          this.world = mock_world
-          spec.call
-        ensure
-          this.world = real_world
-        end
-      end
-
-      def add_mock_command(name, &body)
-        mock_commands[name] = Class.new(Moi::Command) { define_method(:call, &body) }
-      end
-
-      def execute_mock_command(world_overrides={}, &body)
-        add_mock_command 'mock_command', &body
-        this.execute 'mock_command', world_overrides
-      end
-
+    add_helpers_to RSpec.describe('Moi::Command') {
       describe 'exit' do
         it 'defaults to 0 (success)' do
           execute_mock_command { exit }
@@ -137,7 +142,7 @@ class Moi::TestCommand < Moi::Command
             .to raise_error ArgumentError, /not_an_attribute/
         end
       end
-    end
+    }
 
     rspec_argv = []
     exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
