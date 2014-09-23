@@ -166,15 +166,15 @@ commands = {
 
 at_exit do
   command, *argv = ARGV.dup
-  exit commands[command].call env:      ENV,
-                              argv:     argv,
-                              stdin:    $stdin,
-                              stdout:   $stdout,
-                              stderr:   $stderr,
-                              exit:     Kernel.method(:exit),
-                              commands: commands,
-                              home_dir: File.expand_path('~'),
-                              sh:       Open3.method(:capture3)
+  commands[command].call env:      ENV,
+                         argv:     argv,
+                         stdin:    $stdin,
+                         stdout:   $stdout,
+                         stderr:   $stderr,
+                         exit:     Kernel.method(:exit),
+                         commands: commands,
+                         home_dir: File.expand_path('~'),
+                         sh:       Open3.method(:capture3)
 end
 # sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
 
