@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-# TODO: no more command-names, now do 'clone' instead of Moi::CloneMoiCommand
 # TODO: namespace under command
 # TODO: add a specification to assert that they are subclasses of Moi::Command and they are namespaced under Moi::Command
 # TODO: pull the describes out and throw them on the bottom
@@ -97,6 +96,10 @@ class Moi::TestCommand < Moi::Command
       def execute_as_command(world_overrides={}, &body)
         add_command 'mock_command', &body
         execute 'mock_command', world_overrides
+      end
+
+      def execute_described_command
+        execute self.class.description
       end
     end
   end
@@ -195,14 +198,14 @@ class Moi::TestCommand < Moi::Command
   end
 
   def specify_help_command
-    add_helpers_to RSpec.describe(Moi::HelpCommand) {
+    add_helpers_to RSpec.describe('help') {
       it 'prints usage info' do
-        execute 'help'
+        execute_described_command
         expect(mock_stdout.string).to include 'Usage'
       end
 
       it 'has a short description for each available command' do
-        execute 'help'
+        execute_described_command
 
         mock_commands.each do |command_name, command|
           expect(mock_stdout.string).to include command_name
@@ -213,10 +216,10 @@ class Moi::TestCommand < Moi::Command
   end
 
   def specify_clone_command
-    add_helpers_to RSpec.describe(Moi::CloneMoiCommand) {
+    add_helpers_to RSpec.describe('clone') {
       it 'clones the github source to ~/moi-source' do
         pending 'needs a home, sh, and path command'
-        execute 'clone'
+        execute_described_command
       end
     }
   end
