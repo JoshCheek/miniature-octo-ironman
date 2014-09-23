@@ -6,11 +6,6 @@ module Moi
       new(world).call
     end
 
-    attr_accessor :world
-    def initialize(world)
-      @world = world
-    end
-
     def call
       raise NotImplementedError, 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
     end
@@ -21,16 +16,21 @@ module Moi
 
     private
 
+    def initialize(world)
+      @world    = world
+      @env      = world.fetch(:env)
+      @argv     = world.fetch(:argv)
+      @stdin    = world.fetch(:stdin)
+      @stdout   = world.fetch(:stdout)
+      @stderr   = world.fetch(:stderr)
+      @commands = world.fetch(:commands)
+    end
+
+    attr_reader :world, :env, :argv, :stdin, :stdout, :stderr, :commands
+
     def exit(status=0)
       world.fetch(:exit).call(status)
     end
-
-    def env()      world.fetch(:env)    end
-    def argv()     world.fetch(:argv)   end
-    def stdin()    world.fetch(:stdin)  end
-    def stdout()   world.fetch(:stdout) end
-    def stderr()   world.fetch(:stderr) end
-    def commands() world.fetch(:commands) end
 
     def execute(command, world_overrides={})
       new_world = world # TODO: dup?
