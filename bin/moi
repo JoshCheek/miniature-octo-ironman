@@ -74,7 +74,7 @@ class Moi::Command::Test < Moi::Command
       example_group = RSpec.describe description, &block
       add_helpers example_group, name, command_class
     end
-    exit RSpec::Core::Runner.run([], stdout, stderr).to_i
+    exit RSpec::Core::Runner.run(argv, stdout, stderr).to_i
   end
 
   module SpecHelpers
