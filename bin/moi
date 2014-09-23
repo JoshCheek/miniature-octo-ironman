@@ -97,7 +97,7 @@ class Moi::TestCommand < Moi::Command
 
 
   def specify_Moi_Command
-    add_helpers_to RSpec.describe('Moi::Command') {
+    add_helpers_to RSpec.describe(Moi::Command) {
       describe 'exit' do
         it 'defaults to 0 (success)' do
           execute_as_command { exit }
@@ -189,7 +189,7 @@ class Moi::TestCommand < Moi::Command
   end
 
   def specify_help_command
-    add_helpers_to RSpec.describe('Moi::Command') {
+    add_helpers_to RSpec.describe(Moi::Command) {
       it 'prints usage info' do
         execute 'help'
         expect(mock_stdout.string).to include 'Usage'
