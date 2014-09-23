@@ -16,6 +16,8 @@ module Moi
 
     private
 
+    attr_reader :world, :env, :argv, :stdin, :stdout, :stderr, :home_dir, :commands
+
     def initialize(world)
       @world    = world
       @env      = world.fetch(:env)
@@ -23,10 +25,9 @@ module Moi
       @stdin    = world.fetch(:stdin)
       @stdout   = world.fetch(:stdout)
       @stderr   = world.fetch(:stderr)
+      @home_dir = world.fetch(:home_dir)
       @commands = world.fetch(:commands)
     end
-
-    attr_reader :world, :env, :argv, :stdin, :stdout, :stderr, :commands
 
     def exit(status=0)
       world.fetch(:exit).call(status)
@@ -73,32 +74,26 @@ class Moi::Command::Test < Moi::Command
 
   module SpecHelpers
     attr_accessor :last_exitstatus
-
     def build_command(short_description="command from test", &body)
       Class.new Moi::Command do
         define_method(:call, &body)
         define_method(:short_description) { short_description.dup }
       end
     end
-
     def execute(command_name, overrides={})
       build_command { execute command_name, overrides }.call(mock_world)
     end
-
     def add_command(name, &body)
       mock_commands[name] = build_command(&body)
     end
-
     def execute_as_command(world_overrides={}, &body)
       add_command 'mock_command', &body
       execute 'mock_command', world_overrides
     end
-
     def execute_described_command
       execute command_name
     end
   end
-
 
   def add_helpers(suite, command_name, command_class)
     pristine_commands = commands()
@@ -111,8 +106,9 @@ class Moi::Command::Test < Moi::Command
     suite.let(:mock_stdin)     { StringIO.new }
     suite.let(:mock_stdout)    { StringIO.new }
     suite.let(:mock_stderr)    { StringIO.new }
+    suite.let(:mock_home_dir)  { '/Users/josh' }
     suite.let(:mock_commands)  { pristine_commands.dup }
-    suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
+    suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands, home_dir: mock_home_dir} }
   end
 end
 
@@ -153,7 +149,6 @@ commands = {
 }
 
 # TODO: a handler for nonexistent commands
-# TODO: ADD home TO WORLD
 # TODO: ADD sh COMMAND
 
 at_exit do
@@ -164,7 +159,8 @@ at_exit do
                               stdout:   $stdout,
                               stderr:   $stderr,
                               exit:     Kernel.method(:exit),
-                              commands: commands
+                              commands: commands,
+                              home_dir: File.expand_path('~')
 end
 # sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
 
@@ -257,6 +253,13 @@ Moi::Command::Test.describe_command nil, Moi::Command do
     it 'must be overridden by subclasses' do
       expect { Class.new(Moi::Command).call(mock_world) }
         .to raise_error NotImplementedError, /subclass/i
+    end
+  end
+
+  describe 'home_dir' do
+    it 'is the home directory' do
+      execute_as_command { stdout.puts home_dir }
+      expect(mock_stdout.string.chomp).to eq mock_home_dir
     end
   end
 end
