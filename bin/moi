@@ -12,11 +12,11 @@ module Moi
     end
 
     def call
-      raise 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
+      raise NotImplementedError, 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
     end
 
     def short_description
-      raise 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
+      raise NotImplementedError, 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
     end
 
     def exit(status=0)
@@ -104,7 +104,7 @@ class Moi::TestCommand < Moi::Command
           expect(last_exitstatus).to eq 0
         end
 
-        it 'calls the world exit key with the passed value' do
+        it 'calls the real exit with the passed status' do
           execute_mock_command { exit 123 }
           expect(last_exitstatus).to eq 123
         end
@@ -112,27 +112,25 @@ class Moi::TestCommand < Moi::Command
 
       describe 'simple accessors to the passed in hash' do
         specify '#env    returns the environment variables' do
-          env = nil
-          execute_mock_command { env = self.env }
-          expect(env).to equal mock_env
+          mock_env['PATH'] = '/p:/a'
+          execute_mock_command { env['PATH'] << ':/t:/h' }
+          expect(mock_env['PATH']).to eq '/p:/a:/t:/h'
         end
 
-        specify '#argv   returns the args the process was invoked with' do
-          argv = nil
-          execute_mock_command { argv = self.argv }
-          expect(argv).to equal mock_argv
+        specify '#argv   returns the args the process was invoked with (minus the command itself)' do
+          mock_argv << '--color'
+          execute_mock_command { argv << '--json' }
+          expect(mock_argv).to eq ['--color', '--json']
         end
 
         specify '#stdout returns the standard output stream' do
-          stdout = nil
-          execute_mock_command { stdout = self.stdout }
-          expect(stdout).to equal mock_stdout
+          execute_mock_command { stdout.puts "Informational output" }
+          expect(mock_stdout.string).to eq "Informational output\n"
         end
 
         specify '#stderr returns the standard error stream' do
-          stderr = nil
-          execute_mock_command { stderr = self.stderr }
-          expect(stderr).to equal mock_stderr
+          execute_mock_command { stderr.puts "Debugging output" }
+          expect(mock_stderr.string).to eq "Debugging output\n"
         end
       end
 
@@ -156,9 +154,36 @@ class Moi::TestCommand < Moi::Command
           expect(argv).to eq [1,2,3]
         end
 
-        it 'blows up if override is not a world attribute' do
+        it 'blows up if the overriden attribute is not a world attribute' do
           expect { execute_mock_command { execute 'c1', not_an_attribute: 1 } }
             .to raise_error ArgumentError, /not_an_attribute/
+        end
+      end
+
+      describe 'short_description' do
+        it 'describes what the command does' do
+          expect(Moi::TestCommand.new(mock_world).short_description)
+            .to eq 'Run this binary\'s tests against itself'
+        end
+
+        it 'must be overridden by subclasses' do
+          expect { Class.new(Moi::Command).new(mock_world).short_description }
+            .to raise_error NotImplementedError, /subclass/i
+        end
+      end
+
+      describe 'call' do
+        it 'is what does the command\'s work' do
+          add_mock_command('c') { stdout.puts "doing work" }
+          mock_command = mock_commands['c'].new(mock_world)
+          expect(mock_stdout.string).to eq ""
+          mock_command.call
+          expect(mock_stdout.string).to eq "doing work\n"
+        end
+
+        it 'must be overridden by subclasses' do
+          expect { Class.new(Moi::Command).new(mock_world).call }
+            .to raise_error NotImplementedError, /subclass/i
         end
       end
     }
