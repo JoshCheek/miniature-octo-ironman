@@ -61,6 +61,33 @@ class Moi::TestCommand < Moi::Command
     exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
   end
 
+  module SpecHelpers
+    def build_command(short_description="command from test", &body)
+      Class.new Moi::Command do
+        define_method(:call, &body)
+        define_method(:short_description) { short_description.dup }
+      end
+    end
+
+    def execute(command_name, overrides={})
+      build_command { execute command_name, overrides }.new(mock_world).call
+    end
+
+    def add_command(name, &body)
+      mock_commands[name] = build_command(&body)
+    end
+
+    def execute_as_command(world_overrides={}, &body)
+      add_command 'mock_command', &body
+      execute 'mock_command', world_overrides
+    end
+
+    def execute_described_command
+      execute self.class.description
+    end
+  end
+
+
   # looks like there's some fancy shit I can do with hooks in the config block,
   # but wasn't really clear to me how to target them # at the level I want
   # (toplevel contexts, conditionally) without using the include/extend syntax an hooking
@@ -76,32 +103,7 @@ class Moi::TestCommand < Moi::Command
     suite.let(:mock_stderr)    { StringIO.new }
     suite.let(:mock_commands)  { pristine_commands.dup }
     suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
-
-    suite.class_eval do
-      def build_command(short_description="command from test", &body)
-        Class.new Moi::Command do
-          define_method(:call, &body)
-          define_method(:short_description) { short_description.dup }
-        end
-      end
-
-      def execute(command_name, overrides={})
-        build_command { execute command_name, overrides }.new(mock_world).call
-      end
-
-      def add_command(name, &body)
-        mock_commands[name] = build_command(&body)
-      end
-
-      def execute_as_command(world_overrides={}, &body)
-        add_command 'mock_command', &body
-        execute 'mock_command', world_overrides
-      end
-
-      def execute_described_command
-        execute self.class.description
-      end
-    end
+    suite.include SpecHelpers
   end
 
 
