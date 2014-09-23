@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
 
-# TODO: namespace under command
-# TODO: add a specification to assert that they are subclasses of Moi::Command and they are namespaced under Moi::Command
-
 module Moi
   class Command
     def self.call(world)
@@ -45,7 +42,7 @@ module Moi
 end
 
 
-class Moi::TestCommand < Moi::Command
+class Moi::Command::Test < Moi::Command
   class << self
     def described_commands
       @described_commands ||= []
@@ -63,11 +60,11 @@ class Moi::TestCommand < Moi::Command
   def call
     require 'rspec/core'
     require 'stringio'
-    self.class.described_commands.each do |name, described_class, block|
-      description   = "#{name} -> #{described_class}"
-      description   = described_class unless name
+    self.class.described_commands.each do |name, command_class, block|
+      description   = "#{name} -> #{command_class}"
+      description   = command_class unless name
       example_group = RSpec.describe description, &block
-      add_helpers example_group, name, described_class
+      add_helpers example_group, name, command_class
     end
     exit RSpec::Core::Runner.run([], stdout, stderr).to_i
   end
@@ -119,7 +116,7 @@ end
 
 
 
-class Moi::HelpCommand < Moi::Command
+class Moi::Command::Help < Moi::Command
   def short_description
     'Display the help screen'
   end
@@ -135,7 +132,7 @@ class Moi::HelpCommand < Moi::Command
 end
 
 
-class Moi::CloneMoiCommand < Moi::Command
+class Moi::Command::CloneMoi < Moi::Command
   def short_description
     'Clones the Moi source code to ~/moi-source'
   end
@@ -148,11 +145,12 @@ end
 
 
 commands = {
-  'test'  => Moi::TestCommand,
-  'help'  => Moi::HelpCommand,
-  'clone' => Moi::CloneMoiCommand,
+  'test'  => Moi::Command::Test,
+  'help'  => Moi::Command::Help,
+  'clone' => Moi::Command::CloneMoi,
 }
 
+# TODO: a handler for nonexistent commands
 # TODO: ADD home TO WORLD
 # TODO: ADD sh COMMAND
 
@@ -173,7 +171,7 @@ end
 
 # Below be the tests
 
-Moi::TestCommand.describe_command nil, Moi::Command do
+Moi::Command::Test.describe_command nil, Moi::Command do
   describe 'exit' do
     it 'defaults to 0 (success)' do
       execute_as_command { exit }
@@ -238,7 +236,7 @@ Moi::TestCommand.describe_command nil, Moi::Command do
 
   describe 'short_description' do
     it 'describes what the command does' do
-      expect(Moi::TestCommand.new(mock_world).short_description)
+      expect(Moi::Command::Test.new(mock_world).short_description)
         .to eq 'Run this binary\'s tests against itself'
     end
 
@@ -264,7 +262,7 @@ Moi::TestCommand.describe_command nil, Moi::Command do
 end
 
 
-Moi::TestCommand.describe_command 'help', Moi::HelpCommand do
+Moi::Command::Test.describe_command 'help', Moi::Command::Help do
   it 'prints usage info' do
     execute_described_command
     expect(mock_stdout.string).to include 'Usage'
@@ -280,7 +278,8 @@ Moi::TestCommand.describe_command 'help', Moi::HelpCommand do
   end
 end
 
-Moi::TestCommand.describe_command 'clone', Moi::CloneMoiCommand do
+
+Moi::Command::Test.describe_command 'clone', Moi::Command::CloneMoi do
   it 'clones the github source to ~/moi-source' do
     pending 'needs a home, sh, and path command'
     execute_described_command
