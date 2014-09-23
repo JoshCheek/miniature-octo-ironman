@@ -19,6 +19,8 @@ module Moi
       raise NotImplementedError, 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
     end
 
+    private
+
     def exit(status=0)
       world.fetch(:exit).call(status)
     end
@@ -31,7 +33,7 @@ module Moi
     def commands() world.fetch(:commands) end
 
     def execute(command, world_overrides={})
-      new_world = world
+      new_world = world # TODO: dup?
       world_overrides.each do |k, v|
         next new_world[k] = v if new_world.key? k
         raise ArgumentError, "Not a world attribute! #{k.inspect}"
@@ -99,7 +101,8 @@ class Moi::Command::Test < Moi::Command
 
 
   def add_helpers(suite, command_name, command_class)
-    pristine_commands = self.commands
+    pristine_commands = commands()
+    suite.include SpecHelpers
     suite.let(:command_name)   { command_name.dup }
     suite.let(:command_class)  { command_class }
     suite.let(:mock_env)       { {} }
@@ -110,7 +113,6 @@ class Moi::Command::Test < Moi::Command
     suite.let(:mock_stderr)    { StringIO.new }
     suite.let(:mock_commands)  { pristine_commands.dup }
     suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
-    suite.include SpecHelpers
   end
 end
 
@@ -221,7 +223,7 @@ Moi::Command::Test.describe_command nil, Moi::Command do
 
     it 'accepts overrides for command\'s world attributes' do
       argv = nil
-      add_command('c1') { argv = self.argv }
+      add_command('c1') { argv = argv() }
       execute_as_command { execute 'c1', argv: [1,2,3] }
       expect(argv).to eq [1,2,3]
     end
