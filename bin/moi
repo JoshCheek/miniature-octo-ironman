@@ -15,6 +15,10 @@ module Moi
       raise NotImplementedError, 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
     end
 
+    def visible?
+      true
+    end
+
     private
 
     attr_reader :world, :env, :argv, :stdin, :stdout, :stderr, :home_dir, :commands
@@ -288,6 +292,18 @@ Moi::Command::Test.describe_command nil, Moi::Command do
       execute_as_command { results = sh "omg" }
       expect(results).to eq [mock_sh_out, mock_sh_err, mock_sh_status]
       expect(sh_queue).to eq ['omg']
+    end
+  end
+
+  describe 'visible?' do
+    it 'defaults to true' do
+      command = Class.new(Moi::Command).new(mock_world)
+      expect(command).to be_visible
+    end
+
+    it 'can be set to false to imply this command is internal and should not be presented to users (e.g. in help)' do
+      command = Class.new(Moi::Command) { def visible?() false end }.new(mock_world)
+      expect(command).to_not be_visible
     end
   end
 end
