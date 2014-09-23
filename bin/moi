@@ -39,6 +39,14 @@ end
 
 
 class Moi::TestCommand < Moi::Command
+  def call
+    require 'rspec/core'
+    require 'stringio'
+    define_tests
+    rspec_argv = []
+    exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
+  end
+
   # looks like there's some fancy shit I can do with hooks in the config block,
   # but wasn't really clear to me how to target them # at the level I want
   # (toplevel contexts, conditionally) without using the include/extend syntax an hooking
@@ -74,10 +82,7 @@ class Moi::TestCommand < Moi::Command
   end
 
 
-  def call
-    require 'rspec/core'
-    require 'stringio'
-
+  def define_tests
     add_helpers_to RSpec.describe('Moi::Command') {
       describe 'exit' do
         it 'defaults to 0 (success)' do
@@ -143,9 +148,6 @@ class Moi::TestCommand < Moi::Command
         end
       end
     }
-
-    rspec_argv = []
-    exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
   end
 end
 
