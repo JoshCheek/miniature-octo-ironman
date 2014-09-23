@@ -162,30 +162,43 @@ class Moi::Command::CloneMoi < Moi::Command
 end
 
 
-commands = {
-  'test'  => Moi::Command::Test,
-  'help'  => Moi::Command::Help,
-  'clone' => Moi::Command::CloneMoi,
-}
+class Moi::Command::Missing < Moi::Command
+  def short_description
+    'Handles missing commands'
+  end
 
-# TODO: a handler for nonexistent commands
+  def visible?
+    false
+  end
+
+  def call
+    stdout.puts "MISSING"
+  end
+end
+
 
 at_exit do
+  commands = Hash.new Moi::Command::Missing
+  commands['test']  = Moi::Command::Test
+  commands['help']  = Moi::Command::Help
+  commands['clone'] = Moi::Command::CloneMoi
+
   if $!
     $stderr.puts "Script blew up before running"
     exit 1
   end
 
-  command, *argv = ARGV.dup
-  commands[command].call env:      ENV,
-                         argv:     argv,
-                         stdin:    $stdin,
-                         stdout:   $stdout,
-                         stderr:   $stderr,
-                         exit:     Kernel.method(:exit),
-                         commands: commands,
-                         home_dir: File.expand_path('~'),
-                         sh:       Open3.method(:capture3)
+  command_name, *argv = ARGV.dup
+  commands[command_name].call \
+    env:      ENV,
+    argv:     argv,
+    stdin:    $stdin,
+    stdout:   $stdout,
+    stderr:   $stderr,
+    exit:     Kernel.method(:exit),
+    commands: commands,
+    home_dir: File.expand_path('~'),
+    sh:       Open3.method(:capture3)
 end
 # sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
 
@@ -338,5 +351,20 @@ Moi::Command::Test.describe_command 'clone', Moi::Command::CloneMoi, clone:true 
   it 'clones the github source to ~/moi-source' do
     execute_described_command
     expect(sh_queue).to eq ["git clone https://github.com/JoshCheek/miniature-octo-ironman.git /Users/josh/moi-source"]
+  end
+end
+
+
+Moi::Command::Test.describe_command 'missing commands', Moi::Command::Missing, missing:true do
+  before { pending 'Need to pass the command the name it was invoked with' }
+  it 'prints that the command is missing' do
+    execute 'omgwatwatwat'
+    expect(mock_stdout.string).to include '"omgwatwatwat" is not a command'
+  end
+
+  it 'invokes the help command' do
+    add_command('help') { stdout.puts "from help" }
+    execute 'omgwatwatwat'
+    expect(mock_stdout.string).to include "from help"
   end
 end
