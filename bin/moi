@@ -60,8 +60,8 @@ class Moi::Command::Test < Moi::Command
       @described_commands ||= []
     end
 
-    def describe_command(name, command_class, &spec)
-      described_commands << [name, command_class, spec]
+    def describe_command(name, command_class, *rest, &spec)
+      described_commands << [name, command_class, rest, spec]
     end
   end
 
@@ -72,10 +72,10 @@ class Moi::Command::Test < Moi::Command
   def call
     require 'rspec/core'
     require 'stringio'
-    self.class.described_commands.each do |name, command_class, block|
+    self.class.described_commands.each do |name, command_class, rest, block|
       description   = "#{name} -> #{command_class}"
       description   = command_class unless name
-      example_group = RSpec.describe description, &block
+      example_group = RSpec.describe description, *rest, &block
       add_helpers example_group, name, command_class
     end
     exit RSpec::Core::Runner.run(argv, stdout, stderr).to_i
@@ -192,7 +192,7 @@ end
 
 # =====  BELOW BE THE TESTS =====
 
-Moi::Command::Test.describe_command nil, Moi::Command do
+Moi::Command::Test.describe_command nil, Moi::Command, command:true do
   describe 'exit' do
     it 'defaults to 0 (success)' do
       execute_as_command { exit }
@@ -311,7 +311,7 @@ Moi::Command::Test.describe_command nil, Moi::Command do
 end
 
 
-Moi::Command::Test.describe_command 'help', Moi::Command::Help do
+Moi::Command::Test.describe_command 'help', Moi::Command::Help, help:true do
   it 'prints usage info' do
     execute_described_command
     expect(mock_stdout.string).to include 'Usage'
@@ -334,7 +334,7 @@ Moi::Command::Test.describe_command 'help', Moi::Command::Help do
 end
 
 
-Moi::Command::Test.describe_command 'clone', Moi::Command::CloneMoi do
+Moi::Command::Test.describe_command 'clone', Moi::Command::CloneMoi, clone:true do
   it 'clones the github source to ~/moi-source' do
     execute_described_command
     expect(sh_queue).to eq ["git clone https://github.com/JoshCheek/miniature-octo-ironman.git /Users/josh/moi-source"]
