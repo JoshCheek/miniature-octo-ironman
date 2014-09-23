@@ -1,0 +1,119 @@
+#!/usr/bin/env ruby
+
+module Moi
+  class Command
+    def self.call(world)
+      new(world).call
+    end
+
+    attr_accessor :world
+    def initialize(world)
+      @world = world
+    end
+
+    def call
+      raise 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
+    end
+
+    def exit(status=0)
+      world.fetch(:exit).call(status)
+    end
+
+    def env()      world.fetch(:env)    end
+    def argv()     world.fetch(:argv)   end
+    def stdin()    world.fetch(:stdin)  end
+    def stdout()   world.fetch(:stdout) end
+    def stderr()   world.fetch(:stderr) end
+    def commands() world.fetch(:commands) end
+
+    def execute(command, world_overrides={})
+      new_world = world
+      world_overrides.each do |k, v|
+        raise "Not a world attribute! #{k.inspect}" unless new_world.key? k
+        new_world[k] = v
+      end
+      commands[command].call(world)
+    end
+  end
+end
+
+
+class Moi::TestCommand < Moi::Command
+  def call
+    this = self
+    require 'rspec/core'
+    require 'stringio'
+    RSpec.describe 'Moi::Command' do
+      attr_accessor :last_exitstatus
+      let(:this)          { this } # -.-
+      let(:mock_env)      { {} }
+      let(:mock_argv)     { [] }
+      let(:mock_exit)     { lambda { |status| self.last_exitstatus = status } }
+      let(:mock_stdin)    { StringIO.new }
+      let(:mock_stdout)   { StringIO.new }
+      let(:mock_stderr)   { StringIO.new }
+      let(:mock_commands) { this.commands.dup }
+      let(:mock_world)    { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands } }
+
+      around do |spec|
+        begin
+          real_world = this.world
+          this.world = mock_world
+          spec.call
+        ensure
+          this.world = real_world
+        end
+      end
+
+      def execute_mock_command(world_overrides={}, &call)
+        mock_commands['mock_command'] = Class.new(Moi::Command) { define_method(:call, &call) }
+        this.execute 'mock_command', world_overrides
+      end
+
+      describe 'exit' do
+        it 'defaults to 0 (success)' do
+          execute_mock_command { exit }
+          expect(last_exitstatus).to eq 0
+        end
+
+        it 'calls the world exit key with the passed value' do
+          execute_mock_command { exit 123 }
+          expect(last_exitstatus).to eq 123
+        end
+      end
+
+      describe 'simple accessors to the passed in hash' do
+        specify '#env    returns the environment variables'
+        specify '#argv   returns the args the process was invoked with'
+        specify '#stdout returns the standard output stream'
+        specify '#stderr returns the standard error stream'
+      end
+
+      describe 'exectue' do
+        it 'invokes the specified command'
+        it 'accepts overrides for command\'s world attributes'
+        it 'blows up if override is not a world attribute'
+      end
+    end
+
+    rspec_argv = []
+    exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
+  end
+end
+
+commands = {
+  'test' => Moi::TestCommand,
+}
+
+
+command, *argv = ARGV.dup
+command = commands[command].new env:      ENV,
+                                argv:     argv,
+                                stdin:    $stdin,
+                                stdout:   $stdout,
+                                stderr:   $stderr,
+                                exit:     Kernel.method(:exit),
+                                commands: commands
+command.call
+exit 0
+# sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
