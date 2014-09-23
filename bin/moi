@@ -165,6 +165,11 @@ commands = {
 # TODO: a handler for nonexistent commands
 
 at_exit do
+  if $!
+    $stderr.puts "Script blew up before running"
+    exit 1
+  end
+
   command, *argv = ARGV.dup
   commands[command].call env:      ENV,
                          argv:     argv,
