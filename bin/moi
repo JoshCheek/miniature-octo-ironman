@@ -15,6 +15,10 @@ module Moi
       raise 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
     end
 
+    def short_description
+      raise 'I SHOULD BE IMPLEMENTED BY SUBCLASSES!'
+    end
+
     def exit(status=0)
       world.fetch(:exit).call(status)
     end
@@ -39,6 +43,10 @@ end
 
 
 class Moi::TestCommand < Moi::Command
+  def short_description
+    'Run this binary\'s tests against itself'
+  end
+
   def call
     require 'rspec/core'
     require 'stringio'
@@ -163,15 +171,31 @@ class Moi::TestCommand < Moi::Command
         expect(mock_stdout.string).to include 'Usage'
       end
 
-      it 'has a short description for each available command'
+      it 'has a short description for each available command' do
+        execute 'help'
+
+        mock_commands.each do |command_name, command|
+          expect(mock_stdout.string).to include command_name
+          expect(mock_stdout.string).to include command.new(mock_world).short_description
+        end
+      end
     }
   end
 end
 
 
 class Moi::HelpCommand < Moi::Command
+  def short_description
+    'Display the help screen'
+  end
+
   def call
     stdout.puts "Usage: moi command [arg]*"
+    stdout.puts ""
+    stdout.puts "Commands:"
+    commands.each do |name, command|
+      stdout.printf "  %-15s # %s\n", name, command.new(world).short_description
+    end
   end
 end
 
