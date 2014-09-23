@@ -80,7 +80,7 @@ class Moi::Command::Test < Moi::Command
     end
 
     def execute(command_name, overrides={})
-      build_command { execute command_name, overrides }.new(mock_world).call
+      build_command { execute command_name, overrides }.call(mock_world)
     end
 
     def add_command(name, &body)
@@ -156,15 +156,13 @@ commands = {
 
 at_exit do
   command, *argv = ARGV.dup
-  command = commands[command].new env:      ENV,
-                                  argv:     argv,
-                                  stdin:    $stdin,
-                                  stdout:   $stdout,
-                                  stderr:   $stderr,
-                                  exit:     Kernel.method(:exit),
-                                  commands: commands
-  command.call
-  exit 0
+  exit commands[command].call env:      ENV,
+                              argv:     argv,
+                              stdin:    $stdin,
+                              stdout:   $stdout,
+                              stderr:   $stderr,
+                              exit:     Kernel.method(:exit),
+                              commands: commands
 end
 # sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
 
@@ -255,7 +253,7 @@ Moi::Command::Test.describe_command nil, Moi::Command do
     end
 
     it 'must be overridden by subclasses' do
-      expect { Class.new(Moi::Command).new(mock_world).call }
+      expect { Class.new(Moi::Command).call(mock_world) }
         .to raise_error NotImplementedError, /subclass/i
     end
   end
