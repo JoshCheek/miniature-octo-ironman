@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'open3'
 
 module Moi
   class Command
@@ -31,6 +32,10 @@ module Moi
 
     def exit(status=0)
       world.fetch(:exit).call(status)
+    end
+
+    def sh(*args, &block)
+      world.fetch(:sh).call(*args)
     end
 
     def execute(command, world_overrides={})
@@ -97,6 +102,9 @@ class Moi::Command::Test < Moi::Command
 
   def add_helpers(suite, command_name, command_class)
     pristine_commands = commands()
+    success_status    = Open3.capture3('ruby -e "exit 0"').last # https://twitter.com/josh_cheek/status/514418264815185921
+    failure_status    = Open3.capture3('ruby -e "exit 1"').last
+
     suite.include SpecHelpers
     suite.let(:command_name)   { command_name.dup }
     suite.let(:command_class)  { command_class }
@@ -108,7 +116,14 @@ class Moi::Command::Test < Moi::Command
     suite.let(:mock_stderr)    { StringIO.new }
     suite.let(:mock_home_dir)  { '/Users/josh' }
     suite.let(:mock_commands)  { pristine_commands.dup }
-    suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands, home_dir: mock_home_dir} }
+    suite.let(:sh_queue)       { [] }
+    suite.let(:mock_sh_out)    { StringIO.new }
+    suite.let(:mock_sh_err)    { StringIO.new }
+    suite.let(:mock_sh_status) { success_status }
+    suite.let(:success_status) { success_status }
+    suite.let(:failure_status) { failure_status }
+    suite.let(:mock_sh)        { lambda { |script| sh_queue << script; [mock_sh_out, mock_sh_err, mock_sh_status]} }
+    suite.let(:mock_world)     { {env: mock_env, argv: mock_argv, stdin: mock_stdin, stdout: mock_stdout, stderr: mock_stderr, exit: mock_exit, commands: mock_commands, home_dir: mock_home_dir, sh: mock_sh} }
   end
 end
 
@@ -149,7 +164,6 @@ commands = {
 }
 
 # TODO: a handler for nonexistent commands
-# TODO: ADD sh COMMAND
 
 at_exit do
   command, *argv = ARGV.dup
@@ -160,12 +174,13 @@ at_exit do
                               stderr:   $stderr,
                               exit:     Kernel.method(:exit),
                               commands: commands,
-                              home_dir: File.expand_path('~')
+                              home_dir: File.expand_path('~'),
+                              sh:       Open3.method(:capture3)
 end
 # sudo chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb start
 
 
-# Below be the tests
+# =====  BELOW BE THE TESTS =====
 
 Moi::Command::Test.describe_command nil, Moi::Command do
   describe 'exit' do
@@ -260,6 +275,15 @@ Moi::Command::Test.describe_command nil, Moi::Command do
     it 'is the home directory' do
       execute_as_command { stdout.puts home_dir }
       expect(mock_stdout.string.chomp).to eq mock_home_dir
+    end
+  end
+
+  describe 'sh' do
+    it 'executes the shell command and returns the output, error, and status' do
+      results = nil
+      execute_as_command { results = sh "omg" }
+      expect(results).to eq [mock_sh_out, mock_sh_err, mock_sh_status]
+      expect(sh_queue).to eq ['omg']
     end
   end
 end
