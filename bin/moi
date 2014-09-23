@@ -1,5 +1,10 @@
 #!/usr/bin/env ruby
 
+# TODO: no more command-names, now do 'clone' instead of Moi::CloneMoiCommand
+# TODO: namespace under command
+# TODO: add a specification to assert that they are subclasses of Moi::Command and they are namespaced under Moi::Command
+# TODO: pull the describes out and throw them on the bottom
+
 module Moi
   class Command
     def self.call(world)
@@ -52,7 +57,8 @@ class Moi::TestCommand < Moi::Command
     require 'stringio'
     specify_Moi_Command
     specify_help_command
-    rspec_argv = []
+    specify_clone_command
+    rspec_argv = [] # --fail-fast --color --format documentation
     exit RSpec::Core::Runner.run(rspec_argv, stdout, stderr).to_i
   end
 
@@ -189,7 +195,7 @@ class Moi::TestCommand < Moi::Command
   end
 
   def specify_help_command
-    add_helpers_to RSpec.describe(Moi::Command) {
+    add_helpers_to RSpec.describe(Moi::HelpCommand) {
       it 'prints usage info' do
         execute 'help'
         expect(mock_stdout.string).to include 'Usage'
@@ -202,6 +208,15 @@ class Moi::TestCommand < Moi::Command
           expect(mock_stdout.string).to include command_name
           expect(mock_stdout.string).to include command.new(mock_world).short_description
         end
+      end
+    }
+  end
+
+  def specify_clone_command
+    add_helpers_to RSpec.describe(Moi::CloneMoiCommand) {
+      it 'clones the github source to ~/moi-source' do
+        pending 'needs a home, sh, and path command'
+        execute 'clone'
       end
     }
   end
@@ -224,12 +239,26 @@ class Moi::HelpCommand < Moi::Command
 end
 
 
+class Moi::CloneMoiCommand < Moi::Command
+  def short_description
+    'Clones the Moi source code to ~/moi-source'
+  end
+
+  def call
+    raise NotImplementedError
+    # sh "git clone https://github.com/JoshCheek/miniature-octo-ironman.git #{path home, '/moi-source'}"
+  end
+end
+
+
 commands = {
-  'test' => Moi::TestCommand,
-  'help' => Moi::HelpCommand,
+  'test'  => Moi::TestCommand,
+  'help'  => Moi::HelpCommand,
+  'clone' => Moi::CloneMoiCommand,
 }
 
-
+# TODO: ADD home TO WORLD
+# TODO: ADD sh COMMAND
 command, *argv = ARGV.dup
 command = commands[command].new env:      ENV,
                                 argv:     argv,
