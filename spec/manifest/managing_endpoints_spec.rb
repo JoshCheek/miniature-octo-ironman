@@ -111,7 +111,7 @@ describe 'managing Moi::Manifest::Endpoint' do
 
         fs.cd endpoint.absolute_path do
           fs.sh "git checkout -b delete-your-masters"
-          fs.sh "git br -D master"
+          fs.sh "git branch -D master"
         end
 
         expect(fetch_file endpoint, 'somefile').to eq 'modified'
