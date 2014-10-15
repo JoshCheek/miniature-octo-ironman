@@ -36,6 +36,10 @@ Then 'my page has "$content" on it' do |content|
   expect(internet.body).to include content
 end
 
+Then 'my page has the SHA from the repo' do
+  expect(internet.response_headers.values).to include MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints.last.ref
+end
+
 Then 'my page has an editor with "$content"' do |content|
   internet.within editor_class do
     expect(internet).to have_content(content)

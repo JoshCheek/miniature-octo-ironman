@@ -48,6 +48,7 @@ Feature: Document with code that prints output
     """
     When I visit "/someowner/custom_lesson"
     Then my page has "I came from a git repo" on it
+    And my page has the SHA from the repo
     And my page has an editor with "1+1"
     When I submit the code in the editor
     Then I see an output box with "mock-from-cuke" in it

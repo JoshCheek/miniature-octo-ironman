@@ -9,6 +9,7 @@ Haml::Options.defaults[:ugly] = true
 class MiniatureOctoIronman < Sinatra::Base
   ENDPOINT_CONFIGURATION = Moi::Manifest.new []
 
+
   set :markdown, layout_engine: :haml, layout: :layout
 
   get '/' do
@@ -40,9 +41,14 @@ class MiniatureOctoIronman < Sinatra::Base
       endpoint.owner == params[:owner] &&
         endpoint.webpath == params[:webpath]
     }
-    markdown Moi::Manifest::Endpoint.fetch_file(
-      endpoint,
-      endpoint.main_filename,
-    )
+    if endpoint
+      headers["SHA-for-file"] = endpoint.ref
+      markdown Moi::Manifest::Endpoint.fetch_file(
+        endpoint,
+        endpoint.main_filename,
+      )
+    else
+      raise "couldn't find an endpoint for owner: #{params[:owner]} and webpath: #{params[:webpath]}"
+    end
   end
 end
