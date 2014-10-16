@@ -8,7 +8,7 @@ Haml::Options.defaults[:ugly] = true
 
 class MiniatureOctoIronman < Sinatra::Base
   ENDPOINT_CONFIGURATION = Moi::Manifest.new []
-  DATA_DIR = File.expand_path "../../tmp/repos", __FILE__
+  DATA_DIR = File.expand_path("../../tmp/repos", __FILE__).freeze
   Dir.mkdir DATA_DIR unless Dir.exist? DATA_DIR # <-- hack!
 
   set :markdown, layout_engine: :haml, layout: :layout

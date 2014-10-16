@@ -26,6 +26,7 @@ Feature: Document with code that prints output
     When I submit the code in the editor
     Then I see an output box with "mock-from-cuke" in it
 
+  @josh
   Scenario:
     Given eval.in will serve "https://eval.in/189571.json" as:
     """

@@ -80,5 +80,5 @@ Then 'I see the file from the repo' do
 end
 
 Then 'I can see a link to the repo I created' do
-  expect(internet.body).to include "other/test_example"  
+  expect(internet.body).to include "other/test_example"
 end

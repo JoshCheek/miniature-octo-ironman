@@ -69,13 +69,14 @@ module OurHelpers
 
   require 'moi/manifest/endpoint'
   def endpoint
+    # require 'pry' ; binding.pry
     Moi::Manifest::Endpoint.new(
       repopath:      file_helper.upstream_repo_path,
       ref:           file_helper.current_sha(file_helper.upstream_repo_path),
       main_filename: 'somefile',
       owner:         'someowner',
       webpath:       'custom_lesson',
-      datadir:       file_helper.datadir,
+      datadir:       File.expand_path('..', MiniatureOctoIronman::DATA_DIR),
     )
   end
 end
