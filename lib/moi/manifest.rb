@@ -25,7 +25,7 @@ module Moi
     end
 
     def add(endpoint_or_attributes)
-      endpoint = endpoint_or_attributes === Endpoint ? endpoint_or_attributes : Endpoint.new(endpoint_or_attributes)
+      endpoint = Endpoint === endpoint_or_attributes ? endpoint_or_attributes : Endpoint.new(endpoint_or_attributes)
       self.endpoints << endpoint
     end
 
