@@ -27,4 +27,4 @@ append_to_files = true
 stdout_redirect File.join(tmp_dir, 'puma_out.log'), File.join(tmp_dir, 'puma_err.log'), append_to_files
 
 # Serve on port 80
-bind 'tcp://0.0.0.0:80'
+bind 'unix:///tmp/octo.sock'
