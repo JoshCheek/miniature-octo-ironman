@@ -8,7 +8,8 @@ Haml::Options.defaults[:ugly] = true
 
 class MiniatureOctoIronman < Sinatra::Base
   ENDPOINT_CONFIGURATION = Moi::Manifest.new []
-
+  DATA_DIR = File.expand_path "../../tmp/repos", __FILE__
+  Dir.mkdir DATA_DIR unless Dir.exist? DATA_DIR # <-- hack!
 
   set :markdown, layout_engine: :haml, layout: :layout
 
@@ -34,6 +35,27 @@ class MiniatureOctoIronman < Sinatra::Base
     #   status:            "OK (0.052 sec real, 0.059 sec wall, 9 MB, 18 syscalls)",
     #   url:               "https://eval.in/189558.json"
     # ).to_json
+  end
+
+  ATTRIBUTE_NAMES = [:repopath, :ref, :main_filename, :owner, :webpath].freeze
+  get '/endpoints/new' do
+    form = ATTRIBUTE_NAMES.collect { |attribute| "#{attribute}:<input type=\"text\" name=\"endpoint[#{attribute}]\"><br>" }.join
+    '<form id="form_id" action="/endpoints" method="post">' + form +
+    '<input type="submit" name="Submit">
+    </form>'
+
+  end
+
+  post "/endpoints" do
+  endpoint_args = {repopath:      params["endpoint"]["repopath"],
+                   ref:           params["endpoint"]["ref"],
+                   main_filename: params["endpoint"]["main_filename"],
+                   owner:         params["endpoint"]["owner"],
+                   webpath:       params["endpoint"]["webpath"],
+                   datadir:       DATA_DIR
+                   }
+    ENDPOINT_CONFIGURATION.add endpoint_args
+    "Got yah data!"
   end
 
   get '/:owner/:webpath' do

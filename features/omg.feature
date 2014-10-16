@@ -52,3 +52,10 @@ Feature: Document with code that prints output
     And my page has an editor with "1+1"
     When I submit the code in the editor
     Then I see an output box with "mock-from-cuke" in it
+
+  Scenario:
+    Given I have a git repo
+    When I visit "/endpoints/new"
+    And I submit in the endpoint form with this repo's data
+    When I visit the page holding this repo's main file
+    Then I see the file from the repo

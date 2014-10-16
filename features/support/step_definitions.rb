@@ -53,3 +53,28 @@ end
 Then 'I see an output box with "$content" in it' do |content|
   expect(internet).to have_css displayed_result_class, text: content
 end
+
+Given 'I have a git repo' do
+  file_helper.cd file_helper.upstream_repo_path do
+    file_helper.write "the_filename.txt", "this is the file I'm testing"
+    file_helper.sh "git add ."
+    file_helper.sh "git commit -m 'some commit'"
+  end
+end
+
+When 'I submit in the endpoint form with this repo\'s data' do
+  internet.fill_in "endpoint[repopath]", with: file_helper.upstream_repo_path
+  internet.fill_in "endpoint[ref]", with: "master"
+  internet.fill_in "endpoint[main_filename]", with: "the_filename.txt"
+  internet.fill_in "endpoint[owner]", with: "other"
+  internet.fill_in "endpoint[webpath]", with: "test_example"
+  internet.all("input").last.click
+end
+
+When 'I visit the page holding this repo\'s main file' do
+  internet.visit "http://localhost:1235/other/test_example"
+end
+
+Then 'I see the file from the repo' do
+  expect(internet.body).to include "this is the file I'm testing"
+end

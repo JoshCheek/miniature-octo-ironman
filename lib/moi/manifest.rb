@@ -5,12 +5,9 @@ module Moi
     attr_accessor :endpoints
 
     def initialize(endpoints_or_endpoint_hashes)
-      self.endpoints = endpoints_or_endpoint_hashes.map do |endpoint_or_attributes|
-        if Endpoint === endpoint_or_attributes
-          endpoint_or_attributes
-        else
-          Endpoint.new endpoint_or_attributes
-        end
+      self.endpoints = []
+      endpoints_or_endpoint_hashes.each do |endpoint_or_attributes|
+        add(endpoint_or_attributes)
       end
     end
 
@@ -26,5 +23,11 @@ module Moi
     def each(&block)
       endpoints.each(&block)
     end
+
+    def add(endpoint_or_attributes)
+      endpoint = endpoint_or_attributes === Endpoint ? endpoint_or_attributes : Endpoint.new(endpoint_or_attributes)
+      self.endpoints << endpoint
+    end
+
   end
 end
