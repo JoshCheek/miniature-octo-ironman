@@ -28,13 +28,15 @@ end
 
 # MANAGING PROD
 namespace :prod do
+  ip = '104.131.24.233'
+
   desc 'Open the prod website'
   task :open do
-    sh 'open http://104.131.24.233'
+    sh "open http://#{ip}"
   end
 
-  def self.ssh(command=nil)
-    script = "ssh miniature-octo-ironman@104.131.24.233"
+  define_singleton_method :ssh do |command=nil|
+    script = "ssh miniature-octo-ironman@#{ip}"
     require 'shellwords'
     script << " " << command.shellescape if command.kind_of?(String)
     sh script
@@ -43,6 +45,6 @@ namespace :prod do
   desc 'Ssh into prod box'
   task(:ssh) { ssh }
 
-  desc 'Install the prod binary'
-  # task(:install_bin) { ssh '
+  desc 'Restart the server'
+  task(:restart) { ssh 'cd ~/miniature-octo-ironman; chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb restart' }
 end
