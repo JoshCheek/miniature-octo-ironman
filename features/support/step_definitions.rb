@@ -78,3 +78,7 @@ end
 Then 'I see the file from the repo' do
   expect(internet.body).to include "this is the file I'm testing"
 end
+
+Then 'I can see a link to the repo I created' do
+  expect(internet.body).to include "other/test_example"  
+end

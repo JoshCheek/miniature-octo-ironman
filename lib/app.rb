@@ -44,20 +44,22 @@ class MiniatureOctoIronman < Sinatra::Base
   get '/endpoints/new' do
     form = ATTRIBUTE_NAMES.collect { |attribute| "#{attribute}:<input type=\"text\" name=\"endpoint[#{attribute}]\"><br>" }.join
     '<form id="form_id" action="/endpoints" method="post">' + form +
-    '<input type="submit" name="Submit">
+    'test<textarea form="form_id" name = "endpoint[desc]", rows="6", cols="60"></textarea><br>
+    <input type="submit" name="Submit">
     </form>'
 
   end
 
   post "/endpoints" do
-  endpoint_args = {repopath:      params["endpoint"]["repopath"],
-                   ref:           params["endpoint"]["ref"],
-                   main_filename: params["endpoint"]["main_filename"],
-                   owner:         params["endpoint"]["owner"],
-                   webpath:       params["endpoint"]["webpath"],
-                   datadir:       DATA_DIR
-                   }
+    endpoint_args = {repopath:      params["endpoint"]["repopath"],
+                     ref:           params["endpoint"]["ref"],
+                     main_filename: params["endpoint"]["main_filename"],
+                     owner:         params["endpoint"]["owner"],
+                     webpath:       params["endpoint"]["webpath"],
+                     datadir:       DATA_DIR
+                    }
     ENDPOINT_CONFIGURATION.add endpoint_args
+    # require 'pry' ; binding.pry
     "Got yah data!"
   end
 
@@ -74,7 +76,6 @@ class MiniatureOctoIronman < Sinatra::Base
       )
     else
       redirect '/'
-      # raise "couldn't find an endpoint for owner: #{params[:owner]} and webpath: #{params[:webpath]}"
     end
   end
 end
