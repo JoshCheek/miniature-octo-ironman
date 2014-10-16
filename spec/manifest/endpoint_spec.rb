@@ -5,7 +5,6 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
     Moi::Manifest::Endpoint.new attributes
   end
   let(:reponame)         { 'miniature-octo-ironman'                       }
-
   let(:repopath)         { "https://github.com/JoshCheek/#{reponame}.git" }
   let(:ref)              { 'someref'                                      }
   let(:main_filename)    { 'somefile'                                     }
@@ -59,19 +58,15 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
   end
 
   context 'validation/errors' do
-    def each_invalid
-      return to_enum :each_invalid unless block_given?
-      [:repopath, :ref, :main_filename, :owner, :webpath, :datadir].each do |attribute|
-        invalid_attributs = valid_attributes.reject { |k, v| k == attribute }
-        yield attribute, endpoint_for(invalid_attributs)
-      end
-    end
-
     it 'is invalid if there is an error string' do
-      expect(endpoint_for valid_attributes).to be_valid
+      valid_endpoint   = endpoint_for(valid_attributes)
+      invalid_endpoint = endpoint_for(valid_attributes.merge owner: nil)
 
-      missing_attr, endpoint = each_invalid.first
-      expect(endpoint).to_not be_valid
+      expect(valid_endpoint.error).to be_nil
+      expect(valid_endpoint).to be_valid
+
+      expect(invalid_endpoint.error).to be_a_kind_of String
+      expect(invalid_endpoint).to_not be_valid
     end
 
     it 'has a nil error string when all attributes are available' do
@@ -80,7 +75,10 @@ RSpec.describe 'Moi::Manifest::Endpoint' do
     end
 
     it 'has an error string that explains what keys are missing' do
-      each_invalid do |attribute, endpoint|
+      required_attributes = Moi::Manifest::Endpoint::ATTRIBUTE_NAMES - [:localpath]
+      required_attributes.each do |attribute|
+        invalid_attributs = valid_attributes.reject { |k, v| k == attribute }
+        endpoint = endpoint_for invalid_attributs
         expect(endpoint.error).to match /Missing attributes: .*?#{attribute}/
       end
     end
