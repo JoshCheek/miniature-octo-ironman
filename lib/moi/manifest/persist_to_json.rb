@@ -12,6 +12,7 @@ module Moi
       end
 
       def load
+        return Moi::Manifest.new [] unless File.exists? @file_path
         Moi::Manifest.new keys_to_sym(JSON.parse(File.read @file_path))
       end
 
