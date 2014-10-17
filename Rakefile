@@ -45,6 +45,23 @@ namespace :prod do
   desc 'Ssh into prod box'
   task(:ssh) { ssh }
 
-  desc 'Restart the server'
-  task(:restart) { ssh 'cd ~/miniature-octo-ironman; chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb restart' }
+  desc 'Restart the server (from local machine)'
+  task(:restart)           { ssh 'rake prod:restart_from_prod' }
+  task(:restart_from_prod) { sh 'cd ~/miniature-octo-ironman && chruby-exec 2.1.2 -- bundle exec pumactl --config-file puma_config.rb restart' }
+
+  namespace :git do
+    desc 'Pull the master branch from GH so that the server has the latest changes'
+    task :pull do
+      task(:restart) { ssh 'cd ~/miniature-octo-ironman && '\
+                           'git diff --quiet            && '\
+                           'git diff --cached --quiet   && '\
+                           'git pull origin master:master'  }
+    end
+
+    desc 'Ensure prod is on master branch'
+    task(:master) { ssh 'cd ~/miniature-octo-ironman && git checkout master' }
+  end
+
+  desc 'Deploy the code to the server (pull/restart)'
+  task deploy: ['prod:git:pull', 'prod:git:master', 'prod:restart']
 end
