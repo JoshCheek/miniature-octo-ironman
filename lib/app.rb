@@ -3,14 +3,18 @@ require 'redcarpet'
 require 'haml'
 require 'eval_in'
 require 'moi'
+require 'moi/manifest/persist_to_json'
 
 Haml::Options.defaults[:ugly] = true
 
 class MiniatureOctoIronman < Sinatra::Base
-  ENDPOINT_CONFIGURATION = Moi::Manifest.new []
   DATA_DIR = File.expand_path "../../tmp/repos", __FILE__
+  JSON_FILE = File.expand_path "../../tmp/manifest.json", __FILE__
   Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack
   Dir.mkdir DATA_DIR              unless Dir.exist? DATA_DIR              # <-- hack!
+
+  json_parser = Moi::Manifest::PersistToJSON.new JSON_FILE
+  ENDPOINT_CONFIGURATION = json_parser.load
 
   set :markdown, layout_engine: :haml, layout: :layout
 
@@ -41,7 +45,7 @@ class MiniatureOctoIronman < Sinatra::Base
   # nearly the same as Endpoint::ATTRIBUTE_NAMES
   # there is also a test doing something simliar (it removes localpath, I think)
   # is there a good way to consolidate these?
-  ATTRIBUTE_NAMES = [:repopath, :ref, :main_filename, :owner, :webpath].freeze 
+  ATTRIBUTE_NAMES = [:repopath, :ref, :main_filename, :owner, :webpath].freeze
 
   get '/endpoints/new' do
     form = ATTRIBUTE_NAMES.collect { |attribute| "#{attribute}:<input type=\"text\" name=\"endpoint[#{attribute}]\"><br>" }.join
@@ -59,6 +63,7 @@ class MiniatureOctoIronman < Sinatra::Base
                       datadir:       DATA_DIR
                     }
     ENDPOINT_CONFIGURATION.add endpoint_args
+    json_parser.save(ENDPOINT_CONFIGURATION)
     "Got yah data!"
   end
 

@@ -71,6 +71,17 @@ When 'I submit in the endpoint form with this repo\'s data' do
   internet.all("input").last.click
 end
 
+Then "my endpoint has been persisted to the server's json file" do
+  manifest = Moi::Manifest::PersistToJSON.new(MiniatureOctoIronman::JSON_FILE).load
+  refs = manifest.map(&:ref)
+  expect(refs).to include MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints[-2].ref
+  # hey, we need to fix the dependencies for these tests. The endpoint object in
+  # the Given /^I have a configuration$/ test is then being changed in the very
+  # next test, so we have no local object that holds it's current ref, so we
+  # are checking that the 2nd to last endpoint created in the manifest was written
+  # but this dependency could use a lot of change
+end
+
 When 'I visit the page holding this repo\'s main file' do
   internet.visit "http://localhost:1235/other/test_example"
 end

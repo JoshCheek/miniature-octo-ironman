@@ -57,5 +57,6 @@ Feature: Document with code that prints output
     Given I have a git repo
     When I visit "/endpoints/new"
     And I submit in the endpoint form with this repo's data
+    Then my endpoint has been persisted to the server's json file
     When I visit the page holding this repo's main file
     Then I see the file from the repo
