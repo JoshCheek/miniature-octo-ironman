@@ -9,7 +9,8 @@ Haml::Options.defaults[:ugly] = true
 class MiniatureOctoIronman < Sinatra::Base
   ENDPOINT_CONFIGURATION = Moi::Manifest.new []
   DATA_DIR = File.expand_path("../../tmp/repos", __FILE__).freeze
-  Dir.mkdir DATA_DIR unless Dir.exist? DATA_DIR # <-- hack!
+  Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack!
+  Dir.mkdir DATA_DIR              unless Dir.exist? DATA_DIR              # <-- hack!
 
   set :markdown, layout_engine: :haml, layout: :layout
 
@@ -40,26 +41,26 @@ class MiniatureOctoIronman < Sinatra::Base
     # ).to_json
   end
 
-  ATTRIBUTE_NAMES = [:repopath, :ref, :main_filename, :owner, :webpath].freeze
+  # nearly the same as Endpoint::ATTRIBUTE_NAMES
+  # there is also a test doing something simliar (it removes localpath, I think)
+  # is there a good way to consolidate these?
+  ATTRIBUTE_NAMES = [:repopath, :ref, :main_filename, :owner, :webpath].freeze 
+
   get '/endpoints/new' do
     form = ATTRIBUTE_NAMES.collect { |attribute| "#{attribute}:<input type=\"text\" name=\"endpoint[#{attribute}]\"><br>" }.join
     '<form id="form_id" action="/endpoints" method="post">' + form +
     'test<textarea form="form_id" name = "endpoint[desc]", rows="6", cols="60"></textarea><br>
     <input type="submit" name="Submit">
     </form>'
-
   end
 
   post "/endpoints" do
-    endpoint_args = {repopath:      params["endpoint"]["repopath"],
-                     ref:           params["endpoint"]["ref"],
-                     main_filename: params["endpoint"]["main_filename"],
-                     owner:         params["endpoint"]["owner"],
-                     webpath:       params["endpoint"]["webpath"],
-                     datadir:       DATA_DIR
-                    }
-    ENDPOINT_CONFIGURATION.add endpoint_args
-    # require 'pry' ; binding.pry
+    ENDPOINT_CONFIGURATION.add repopath:      params["endpoint"]["repopath"],
+                               ref:           params["endpoint"]["ref"],
+                               main_filename: params["endpoint"]["main_filename"],
+                               owner:         params["endpoint"]["owner"],
+                               webpath:       params["endpoint"]["webpath"],
+                               datadir:       DATA_DIR
     "Got yah data!"
   end
 
@@ -70,10 +71,7 @@ class MiniatureOctoIronman < Sinatra::Base
     }
     if endpoint
       headers["SHA-for-file"] = endpoint.ref
-      markdown Moi::Manifest::Endpoint.fetch_file(
-        endpoint,
-        endpoint.main_filename,
-      )
+      markdown Moi::Manifest::Endpoint.fetch_file(endpoint, endpoint.main_filename)
     else
       redirect '/'
     end
