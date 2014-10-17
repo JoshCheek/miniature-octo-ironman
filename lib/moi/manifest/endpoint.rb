@@ -41,6 +41,17 @@ module Moi
         end
       end
 
+      def to_hash
+        {repopath: repopath,
+         ref: ref,
+         main_filename: main_filename,
+         owner: owner,
+         webpath: webpath,
+         localpath: localpath,
+         datadir: datadir
+        }
+      end
+
       private
 
       def reponame
