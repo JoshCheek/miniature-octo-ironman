@@ -25,12 +25,6 @@ World OurHelpers,
       RSpec::Matchers,
       RSpec::Mocks::ExampleMethods
 
-# Hijack the server to look at our custom views
-Before do
-  copy_views
-  server.set :views, views_dir
-end
-
 # Remove stubs
 After do
   CukeStubs.unstub

@@ -4,10 +4,6 @@ Given 'eval.in will serve "$url" as:' do |url, json|
   CukeStubs.stub EvalIn, :call, result
 end
 
-Given 'I have a document "$name":' do |name, body|
-  File.write path_to_view(name), body
-end
-
 Given /^the git repo exists$/ do # TODO: Move this into a before filter?
   file_helper.reset_datadir
   file_helper.make_upstream_repo

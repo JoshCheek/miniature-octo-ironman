@@ -7,6 +7,12 @@ require 'moi'
 Haml::Options.defaults[:ugly] = true
 
 class MiniatureOctoIronman < Sinatra::Base
+  # Thoughts:
+  #   What if we save/load the manifest in a middleware?
+  #   I think that would get us away from these singletons and hacks
+  #   Could maybe also pass EvalIn in a middleware, and then in dev provide something that runs locally, and in prod something that actually hits EvalIn
+  #
+  #   Uhm... I also don't know how to tell what environment we're running in. There's probably some sort of sinatra "set :env, :test" or something, but haven't looked at it yet (this is a brain-dump)
   ENDPOINT_CONFIGURATION = Moi::Manifest.new []
   DATA_DIR = File.expand_path("../../tmp/repos", __FILE__).freeze
   Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack!
@@ -19,10 +25,6 @@ class MiniatureOctoIronman < Sinatra::Base
       path = [endpoint.owner, endpoint.webpath].join "/"
       "<a href=\"/#{path}\">#{path}</a>"
     end.join "<br>"
-  end
-
-  get '/lesson1' do
-    markdown :lesson1
   end
 
   get '/run' do
