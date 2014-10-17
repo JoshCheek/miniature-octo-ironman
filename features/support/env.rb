@@ -4,6 +4,9 @@ $LOAD_PATH.unshift File.expand_path('../../../lib', __FILE__)
 require 'support/shitty_stub' # TODO: These get required here, but then loaded by Cucumber afterwards. Idk how everyone else deals with this, might become a problem
 require 'support/our_helpers'
 
+# Turn off the spammy html error page, it's good in dev, not in test
+MiniatureOctoIronman.set :show_exceptions, false
+
 # Start our server
 OurHelpers.start_server
 at_exit { OurHelpers.stop_server }
