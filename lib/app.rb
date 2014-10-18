@@ -25,10 +25,11 @@ class MiniatureOctoIronman < Sinatra::Base
   set :markdown, layout_engine: :haml, layout: :layout
 
   get '/' do
+    '<a href="/endpoints/new">Add an endpoint</a><br /><br />' +
     ENDPOINT_CONFIGURATION.map do |endpoint|
       path = [endpoint.owner, endpoint.webpath].join "/"
       "<a href=\"/#{path}\">#{path}</a>"
-    end.join "<br>"
+    end.join("<br>")
   end
 
   get '/run' do
