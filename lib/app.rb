@@ -8,9 +8,15 @@ require 'moi/manifest/persist_to_json'
 Haml::Options.defaults[:ugly] = true
 
 class MiniatureOctoIronman < Sinatra::Base
-  DATA_DIR = File.expand_path "../../tmp/repos", __FILE__
+  # Thoughts:
+  #   What if we save/load the manifest in a middleware?
+  #   I think that would get us away from these singletons and hacks
+  #   Could maybe also pass EvalIn in a middleware, and then in dev provide something that runs locally, and in prod something that actually hits EvalIn
+  #
+  #   Uhm... I also don't know how to tell what environment we're running in. There's probably some sort of sinatra "set :env, :test" or something, but haven't looked at it yet (this is a brain-dump)
+  DATA_DIR  = File.expand_path "../../tmp/repos",         __FILE__
   JSON_FILE = File.expand_path "../../tmp/manifest.json", __FILE__
-  Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack
+  Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack!
   Dir.mkdir DATA_DIR              unless Dir.exist? DATA_DIR              # <-- hack!
 
   json_parser = Moi::Manifest::PersistToJSON.new JSON_FILE
@@ -19,11 +25,10 @@ class MiniatureOctoIronman < Sinatra::Base
   set :markdown, layout_engine: :haml, layout: :layout
 
   get '/' do
-    redirect '/lesson1'
-  end
-
-  get '/lesson1' do
-    markdown :lesson1
+    ENDPOINT_CONFIGURATION.map do |endpoint|
+      path = [endpoint.owner, endpoint.webpath].join "/"
+      "<a href=\"/#{path}\">#{path}</a>"
+    end.join "<br>"
   end
 
   get '/run' do
@@ -50,19 +55,18 @@ class MiniatureOctoIronman < Sinatra::Base
   get '/endpoints/new' do
     form = ATTRIBUTE_NAMES.collect { |attribute| "#{attribute}:<input type=\"text\" name=\"endpoint[#{attribute}]\"><br>" }.join
     '<form id="form_id" action="/endpoints" method="post">' + form +
-    '<input type="submit" name="Submit">
+    'test<textarea form="form_id" name = "endpoint[desc]", rows="6", cols="60"></textarea><br>
+    <input type="submit" name="Submit">
     </form>'
   end
 
   post "/endpoints" do
-    endpoint_args = { repopath:      params["endpoint"]["repopath"],
-                      ref:           params["endpoint"]["ref"],
-                      main_filename: params["endpoint"]["main_filename"],
-                      owner:         params["endpoint"]["owner"],
-                      webpath:       params["endpoint"]["webpath"],
-                      datadir:       DATA_DIR
-                    }
-    ENDPOINT_CONFIGURATION.add endpoint_args
+    ENDPOINT_CONFIGURATION.add repopath:      params["endpoint"]["repopath"],
+                               ref:           params["endpoint"]["ref"],
+                               main_filename: params["endpoint"]["main_filename"],
+                               owner:         params["endpoint"]["owner"],
+                               webpath:       params["endpoint"]["webpath"],
+                               datadir:       DATA_DIR
     json_parser.save(ENDPOINT_CONFIGURATION)
     "Got yah data!"
   end
@@ -76,7 +80,7 @@ class MiniatureOctoIronman < Sinatra::Base
       headers["SHA-for-file"] = endpoint.ref
       markdown Moi::Manifest::Endpoint.fetch_file(endpoint, endpoint.main_filename)
     else
-      raise "couldn't find an endpoint for owner: #{params[:owner]} and webpath: #{params[:webpath]}"
+      redirect '/'
     end
   end
 end
