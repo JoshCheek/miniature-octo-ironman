@@ -52,10 +52,10 @@ namespace :prod do
   namespace :git do
     desc 'Pull the master branch from GH so that the server has the latest changes'
     task :pull do
-      task(:restart) { ssh 'cd ~/miniature-octo-ironman && '\
-                           'git diff --quiet            && '\
-                           'git diff --cached --quiet   && '\
-                           'git pull origin master:master'  }
+       ssh 'cd ~/miniature-octo-ironman && '\
+           'git diff --quiet            && '\
+           'git diff --cached --quiet   && '\
+           'git pull origin master:master'
     end
 
     desc 'Ensure prod is on master branch'
