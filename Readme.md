@@ -27,6 +27,10 @@ Getting started
     <td> Run server with </td>
     <td> <code>rake server</code></td>
   </tr>
+  <tr>
+    <td>Add your first endpoint with </td>
+    <td>`curl localhost:9292/endpoints -d 'endpoint[repopath]=https://gist.github.com/3e9b75fc0bdf22c6a7a2.git' -d 'endpoint[ref]=master' -d 'endpoint[main_filename]=gistfile1.txt' -d 'endpoint[owner]=dalexj' -d 'endpoint[webpath]=example' -d 'endpoint[desc]=Example of an endpoint.'`</td>
+  </tr>
 </table>
 
 Contributing
