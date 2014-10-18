@@ -2,7 +2,6 @@ Feature: Document with code that prints output
 
   I want rubymonk style lessons
 
-  @josh
   Scenario:
     Given eval.in will serve "https://eval.in/189571.json" as:
     """
