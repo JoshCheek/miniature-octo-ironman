@@ -14,9 +14,13 @@ class MiniatureOctoIronman < Sinatra::Base
   #   Could maybe also pass EvalIn in a middleware, and then in dev provide something that runs locally, and in prod something that actually hits EvalIn
   #
   #   Uhm... I also don't know how to tell what environment we're running in. There's probably some sort of sinatra "set :env, :test" or something, but haven't looked at it yet (this is a brain-dump)
+  #
+  #   UPDATE! - I didn't read my old thoughts, but there is now a middleware in config.ru and in the OurHelpers module,
+  #             we can probably add this to each of those
   DATA_DIR  = File.expand_path "../../tmp/repos",         __FILE__
   JSON_FILE = File.expand_path "../../tmp/manifest.json", __FILE__
-  Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack!
+
+  Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack! I think this should just move into the manifest, not completely sure, but that should make it a lot more reliable (check the stupid before filter on the cukes)
   Dir.mkdir DATA_DIR              unless Dir.exist? DATA_DIR              # <-- hack!
 
   json_parser = Moi::Manifest::PersistToJSON.new JSON_FILE
@@ -34,18 +38,10 @@ class MiniatureOctoIronman < Sinatra::Base
 
   get '/run' do
     content_type :json
-    EvalIn.call(params[:code], language: 'ruby/mri-2.1', context: 'https://github.com/JoshCheek/miniature-octo-ironman')
-          .to_json
-    # -- for playing around without constantly hitting https://eval.in --
-    # EvalIn::Result.new(
-    #   exitstatus:        0,
-    #   language:          "ruby/mri-2.1",
-    #   language_friendly: "Ruby — MRI 2.1",
-    #   code:              "\n  puts ['a', 'b', 'c'].size\n",
-    #   output:            "mock-from-run\n",
-    #   status:            "OK (0.052 sec real, 0.059 sec wall, 9 MB, 18 syscalls)",
-    #   url:               "https://eval.in/189558.json"
-    # ).to_json
+    env['eval_in'].call(params[:code],
+                        language: 'ruby/mri-2.1',
+                        context:  'https://github.com/JoshCheek/miniature-octo-ironman')
+                  .to_json
   end
 
   # nearly the same as Endpoint::ATTRIBUTE_NAMES

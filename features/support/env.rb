@@ -25,6 +25,22 @@ World OurHelpers,
       RSpec::Matchers,
       RSpec::Mocks::ExampleMethods
 
+Before do
+  # stupid hack that won't work for long
+  # need to inject the data dir, set it to a tmpfile or something
+  # this is going to wipe out any real data we happen to have
+  # There is now a middleware to inject eval_in, go there and inject the data dir
+  file_helper.reset_datadir
+
+  # Stupid hack because the manifest is a singleton.
+  # which causes it to blow up on our tests because we wipe out the data dir
+  # so that the tests don't interfere with each other, but this object still has
+  # an internal reference to the previous endpoints.
+  #
+  # We need to load it anew each time a request comes in.
+  MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints.clear
+end
+
 # Remove stubs
 After do
   CukeStubs.unstub

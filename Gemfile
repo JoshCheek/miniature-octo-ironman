@@ -8,7 +8,8 @@ gem 'puma',          '~> 2.9'   # web server
 gem 'sinatra',       '~> 1.4'   # web framework
 
 # Handling requests
-gem 'eval_in',       '~> 0.1.6' # evaluate ruby code safely
+# gem 'eval_in',       '~> 0.1.6' # evaluate ruby code safely
+gem 'eval_in',       '~> 0.1.6', git: 'https://github.com/JoshCheek/eval_in.git'
 
 # Rendering
 gem 'haml',          '~> 4.0'   # Alternative syntax for HTML, our layout is the only thing that uses it currently

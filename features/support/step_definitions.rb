@@ -1,7 +1,6 @@
 Given 'eval.in will serve "$url" as:' do |url, json|
   parsed_json = JSON.parse(json).merge('url' => url)
-  result      = EvalIn.build_result(parsed_json)
-  CukeStubs.stub EvalIn, :call, result
+  OurHelpers.app.next_eval_in_response = EvalIn::Client.build_result(parsed_json)
 end
 
 Given /^the git repo exists$/ do # TODO: Move this into a before filter?
@@ -51,17 +50,15 @@ Then 'I see an output box with "$content" in it' do |content|
 end
 
 Given 'I have a git repo' do
-  file_helper.cd file_helper.upstream_repo_path do
-    file_helper.write "the_filename.txt", "this is the file I'm testing"
-    file_helper.sh "git add ."
-    file_helper.sh "git commit -m 'some commit'"
-  end
+  # need to fix these magic hidden values that you can't reason about or figure out why things are failing
+  # e.g. this makes a file called "somefile", but who the fuck is going to know that?
+  file_helper.make_upstream_repo
 end
 
 When 'I submit in the endpoint form with this repo\'s data' do
   internet.fill_in "endpoint[repopath]", with: file_helper.upstream_repo_path
   internet.fill_in "endpoint[ref]", with: "master"
-  internet.fill_in "endpoint[main_filename]", with: "the_filename.txt"
+  internet.fill_in "endpoint[main_filename]", with: "somefile" # <-- came from file_helper.make_upstream_repo in "I have a git repo"
   internet.fill_in "endpoint[owner]", with: "other"
   internet.fill_in "endpoint[webpath]", with: "test_example"
   internet.all("input").last.click
@@ -69,13 +66,8 @@ end
 
 Then "my endpoint has been persisted to the server's json file" do
   manifest = Moi::Manifest::PersistToJSON.new(MiniatureOctoIronman::JSON_FILE).load
-  refs = manifest.map(&:ref)
-  expect(refs).to include MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints[-2].ref
-  # hey, we need to fix the dependencies for these tests. The endpoint object in
-  # the Given /^I have a configuration$/ test is then being changed in the very
-  # next test, so we have no local object that holds it's current ref, so we
-  # are checking that the 2nd to last endpoint created in the manifest was written
-  # but this dependency could use a lot of change
+  refs = manifest.map(&:repopath)
+  expect(refs).to include file_helper.upstream_repo_path
 end
 
 When 'I visit the page holding this repo\'s main file' do
@@ -83,7 +75,7 @@ When 'I visit the page holding this repo\'s main file' do
 end
 
 Then 'I see the file from the repo' do
-  expect(internet.body).to include "this is the file I'm testing"
+  expect(internet.body).to include "some content" # <-- came from file_helper.make_upstream_repo in "I have a git repo"
 end
 
 Then 'I can see a link to the repo I created' do
