@@ -11,8 +11,8 @@ Dir.mkdir tmp_dir unless Dir.exist? tmp_dir
 # Serve from the root
 directory root_dir
 
-# Main rackup file
-rackup File.join(root_dir, 'config.ru')
+# Prod rackup file
+rackup File.join(root_dir, 'config.prod.ru')
 
 # Set the environment
 environment 'production'
@@ -26,5 +26,5 @@ state_path File.join(tmp_dir, 'puma.state')
 append_to_files = true
 stdout_redirect File.join(tmp_dir, 'puma_out.log'), File.join(tmp_dir, 'puma_err.log'), append_to_files
 
-# Serve on port 80
+# Serve on a socket so we don't need root access
 bind 'unix:///tmp/octo.sock'
