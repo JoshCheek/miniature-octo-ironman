@@ -21,7 +21,7 @@ use Class.new {
   private
 
   def languages
-    { 'ruby/mri-2.1' => {program: 'ruby', args: []},
+    { 'ruby/mri-2.1' => {program: RbConfig.ruby, args: []},
     }
   end
 
