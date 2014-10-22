@@ -27,14 +27,19 @@ use Class.new {
 
   # is there a logger I can pull off of the env or the app or something,
   # instead of talking directly to stdout?
+
+  #     env['rack.logger'] maybe?
   def eval_in_that_logs_and_evaluates
-    handle_call = lambda do |code, options|
+    EvalIn::Mock.new on_call: handle_call
+  end
+
+  def handle_call
+    lambda do |code, options|
       $stdout.puts "EvalIn evaluating code:", indent(code)
       EvalIn::Mock.new(languages: languages)
                   .call(code, options)
                   .tap { |result| $stdout.puts "EvalIn result:", indent(pretty_inspect result) }
     end
-    EvalIn::Mock.new on_call: handle_call
   end
 
   def indent(string)
