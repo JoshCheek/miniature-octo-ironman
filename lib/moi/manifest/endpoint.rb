@@ -19,7 +19,7 @@ module Moi
       end
 
       def absolute_path
-        datadir && localpath && File.join(datadir, localpath)
+        File.join(datadir, localpath) if datadir && localpath
       end
 
       def localpath
@@ -55,11 +55,11 @@ module Moi
       private
 
       def reponame
-        repopath && Pathname.new(repopath).basename.sub_ext("")
+        Pathname.new(repopath).basename.sub_ext("") if repopath
       end
 
       def generate_localpath
-        owner && reponame && File.join(owner, reponame)
+        File.join(owner, reponame) if owner && reponame
       end
     end
 
@@ -79,7 +79,7 @@ module Moi
         end
       end
 
-      def fetch_file(endpoint, filepath)
+      def fetch_file(endpoint, filepath = endpoint.main_filename)
         retrieve endpoint
         repo = Rugged::Repository.new(endpoint.absolute_path)
         endpoint_name = endpoint.ref

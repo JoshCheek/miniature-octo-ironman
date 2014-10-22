@@ -75,7 +75,7 @@ class MiniatureOctoIronman < Sinatra::Base
     }
     if endpoint
       headers["SHA-for-file"] = endpoint.ref
-      markdown Moi::Manifest::Endpoint.fetch_file(endpoint, endpoint.main_filename)
+      markdown Moi::Manifest::Endpoint.fetch_file(endpoint)
     else
       redirect '/'
     end
