@@ -57,16 +57,28 @@ module OurHelpers
     )
   end
 
+  # So we can use these inside of our tests, maybe there is a better way to?
+  # I'm not sure of what else we can do at the moment, but something to consider
+  attr_accessor :manifest, :json_parser, :json_file_location
+  def create_objects
+    @json_file_location = File.expand_path "../../../tmp/manifest.json", __FILE__
+    @json_parser = Moi::Manifest::PersistToJSON.new json_file_location
+    @manifest = json_parser.load
+  end
+
   # A middleware to mock out any of our dev/prod middlewares
   # Currently it only injects eval_in key into the env
   def build_app
-    middleware = Struct.new(:app) {
+    create_objects
+    middleware = Struct.new(:app, :parser, :manifest) {
       def inspect
         "#<Middleware for test environment (defined in: #{__FILE__.inspect})>"
       end
 
       attr_accessor :next_eval_in_response
       def call(env)
+        env['json_parser'] = parser
+        env['manifest'] = manifest
         app.call(env.merge 'eval_in' => mock_eval_in)
       end
 
@@ -77,6 +89,6 @@ module OurHelpers
         })
       end
     }
-    middleware.new(MiniatureOctoIronman)
+    middleware.new(MiniatureOctoIronman, json_parser, manifest)
   end
 end

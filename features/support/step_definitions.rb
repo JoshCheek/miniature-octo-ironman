@@ -9,7 +9,7 @@ Given /^the git repo exists$/ do # TODO: Move this into a before filter?
 end
 
 Given /^I have a configuration$/  do
-  MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints << endpoint
+  OurHelpers.manifest.add endpoint
 end
 
 Given 'the git repo has the file "$filename"' do |filename, body|
@@ -17,7 +17,7 @@ Given 'the git repo has the file "$filename"' do |filename, body|
     file_helper.write filename, body
     file_helper.sh "git add ."
     file_helper.sh "git commit -m 'some commit'"
-    e = MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints.last
+    e = OurHelpers.manifest.endpoints.last
     e.main_filename = filename
     e.ref = file_helper.current_sha('.')
   end
@@ -32,7 +32,7 @@ Then 'my page has "$content" on it' do |content|
 end
 
 Then 'my page has the SHA from the repo' do
-  expect(internet.response_headers.values).to include MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints.last.ref
+  expect(internet.response_headers.values).to include OurHelpers.manifest.endpoints.last.ref
 end
 
 Then 'my page has an editor with "$content"' do |content|
@@ -65,7 +65,7 @@ When 'I submit in the endpoint form with this repo\'s data' do
 end
 
 Then "my endpoint has been persisted to the server's json file" do
-  manifest = Moi::Manifest::PersistToJSON.new(MiniatureOctoIronman::JSON_FILE).load
+  manifest = Moi::Manifest::PersistToJSON.new(OurHelpers.json_file_location).load
   refs = manifest.map(&:repopath)
   expect(refs).to include file_helper.upstream_repo_path
 end

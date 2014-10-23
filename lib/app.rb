@@ -18,19 +18,15 @@ class MiniatureOctoIronman < Sinatra::Base
   #   UPDATE! - I didn't read my old thoughts, but there is now a middleware in config.ru and in the OurHelpers module,
   #             we can probably add this to each of those
   DATA_DIR  = File.expand_path "../../tmp/repos",         __FILE__
-  JSON_FILE = File.expand_path "../../tmp/manifest.json", __FILE__
 
   Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack! I think this should just move into the manifest, not completely sure, but that should make it a lot more reliable (check the stupid before filter on the cukes)
   Dir.mkdir DATA_DIR              unless Dir.exist? DATA_DIR              # <-- hack!
-
-  json_parser = Moi::Manifest::PersistToJSON.new JSON_FILE
-  ENDPOINT_CONFIGURATION = json_parser.load
 
   set :markdown, layout_engine: :haml, layout: :layout
 
   get '/' do
     '<a href="/endpoints/new">Add an endpoint</a><br /><br />' +
-    ENDPOINT_CONFIGURATION.map do |endpoint|
+    env['manifest'].map do |endpoint|
       path = [endpoint.owner, endpoint.webpath].join "/"
       "<a href=\"/#{path}\">#{path}</a>"
     end.join("<br>")
@@ -58,18 +54,18 @@ class MiniatureOctoIronman < Sinatra::Base
   end
 
   post "/endpoints" do
-    ENDPOINT_CONFIGURATION.add repopath:      params["endpoint"]["repopath"],
+    env['manifest'].add repopath:      params["endpoint"]["repopath"],
                                ref:           params["endpoint"]["ref"],
                                main_filename: params["endpoint"]["main_filename"],
                                owner:         params["endpoint"]["owner"],
                                webpath:       params["endpoint"]["webpath"],
                                datadir:       DATA_DIR
-    json_parser.save(ENDPOINT_CONFIGURATION)
+    env['json_parser'].save env['manifest']
     "Got yah data!"
   end
 
   get '/:owner/:webpath' do
-    endpoint = ENDPOINT_CONFIGURATION.find { |endpoint|
+    endpoint = env['manifest'].find { |endpoint|
       endpoint.owner == params[:owner] &&
         endpoint.webpath == params[:webpath]
     }

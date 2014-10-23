@@ -38,7 +38,7 @@ Before do
   # an internal reference to the previous endpoints.
   #
   # We need to load it anew each time a request comes in.
-  MiniatureOctoIronman::ENDPOINT_CONFIGURATION.endpoints.clear
+  OurHelpers.manifest.endpoints.clear
 end
 
 # Remove stubs
