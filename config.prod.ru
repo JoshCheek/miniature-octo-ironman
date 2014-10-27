@@ -3,6 +3,9 @@ require 'app'
 
 $stdout.puts "PROD ENV LOADED"
 
+require 'moi/git_sha_middleware'
+use Moi::GitShaMiddleware, `git log -1 --pretty=format:"%H"`.chomp.freeze
+
 # add rack middleware to inject the development EvalIn
 require 'eval_in'
 use Class.new {
@@ -15,7 +18,10 @@ use Class.new {
   end
 
   def call(env)
-    env['eval_in'] = EvalIn
+    json_file_location = File.expand_path "../tmp/manifest.json", __FILE__
+    env['json_parser'] = Moi::Manifest::PersistToJSON.new json_file_location
+    env['manifest']    = env['json_parser'].load
+    env['eval_in']     = EvalIn
     @app.call(env)
   end
 }
