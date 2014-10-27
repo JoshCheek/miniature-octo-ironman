@@ -18,7 +18,10 @@ use Class.new {
   end
 
   def call(env)
-    env['eval_in'] = EvalIn
+    json_file_location = File.expand_path "../tmp/manifest.json", __FILE__
+    env['json_parser'] = Moi::Manifest::PersistToJSON.new json_file_location
+    env['manifest']    = env['json_parser'].load
+    env['eval_in']     = EvalIn
     @app.call(env)
   end
 }
