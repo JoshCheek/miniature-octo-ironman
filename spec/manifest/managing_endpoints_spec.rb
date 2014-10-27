@@ -1,4 +1,5 @@
 require 'moi/manifest'
+require 'moi/manifest/repo_loader'
 require 'spec_helper'
 
 # TODO:
@@ -30,11 +31,11 @@ describe 'managing Moi::Manifest::Endpoint' do
   let(:endpoint)         { endpoint_for valid_attributes }
 
   def retrieve(endpoint)
-    Endpoint.retrieve(endpoint)
+    Moi::Manifest::RepoLoader.retrieve(endpoint)
   end
 
   def fetch_file(endpoint, filepath)
-    Endpoint.fetch_file(endpoint, filepath)
+    Moi::Manifest::RepoLoader.fetch_file(endpoint, filepath)
   end
 
   describe '.retrieve' do
