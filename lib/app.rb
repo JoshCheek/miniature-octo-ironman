@@ -4,6 +4,7 @@ require 'haml'
 require 'eval_in'
 require 'moi'
 require 'moi/manifest/persist_to_json'
+require 'moi/manifest/repo_loader'
 
 Haml::Options.defaults[:ugly] = true
 
@@ -71,7 +72,7 @@ class MiniatureOctoIronman < Sinatra::Base
     }
     if endpoint
       headers["SHA-for-file"] = endpoint.ref
-      markdown Moi::Manifest::Endpoint.fetch_file(endpoint)
+      markdown Moi::Manifest::RepoLoader.fetch_file(endpoint)
     else
       redirect '/'
     end
