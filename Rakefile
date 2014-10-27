@@ -62,6 +62,12 @@ namespace :prod do
     task(:master) { ssh 'cd ~/miniature-octo-ironman && git checkout master' }
   end
 
+  namespace :bundle do
+    task :install do
+      ssh 'cd ~/miniature-octo-ironman && bundle install'
+    end
+  end
+
   desc 'Deploy the code to the server (from Github\'s master branch)'
-  task deploy: ['prod:git:pull', 'prod:git:master', 'prod:restart']
+  task deploy: ['prod:git:master', 'prod:git:pull', 'prod:bundle:install', 'prod:restart']
 end
