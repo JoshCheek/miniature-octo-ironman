@@ -3,6 +3,9 @@ require 'app'
 
 $stdout.puts "PROD ENV LOADED"
 
+require 'moi/git_sha_middleware'
+use Moi::GitShaMiddleware, `git log -1 --pretty=format:"%H"`.chomp.freeze
+
 # add rack middleware to inject the development EvalIn
 require 'eval_in'
 use Class.new {
