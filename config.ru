@@ -6,8 +6,13 @@ require 'pp'
 require 'eval_in/mock'
 require 'moi/git_sha_middleware'
 
-use Moi::GitShaMiddleware, `git log -1 --pretty=format:"%H"`.chomp.freeze
+# https://github.com/rack/rack/blob/master/lib/rack/logger.rb
+# http://www.rubydoc.info/stdlib/logger/Logger
+# setting log level to debug, b/c we're in dev, so just print as much shit as we can
+# (unless it gets spammy, then we'll turn it off. Default is IFNO)
+use Rack::Logger, Logger::DEBUG
 
+use Moi::GitShaMiddleware, `git log -1 --pretty=format:"%H"`.chomp.freeze
 use Class.new {
   def initialize(app)
     @app = app
@@ -19,7 +24,7 @@ use Class.new {
 
   def call(env)
     json_file_location = File.expand_path "../tmp/manifest.json", __FILE__
-    env['eval_in'] = eval_in_that_logs_and_evaluates
+    env['eval_in'] = eval_in_that_logs_and_evaluates(env['rack.logger'])
     env['json_parser'] = Moi::Manifest::PersistToJSON.new json_file_location
     env['manifest'] = env['json_parser'].load
     @app.call(env)
@@ -32,20 +37,18 @@ use Class.new {
     }
   end
 
-  # is there a logger I can pull off of the env or the app or something,
-  # instead of talking directly to stdout?
-
-  #     env['rack.logger'] maybe?
-  def eval_in_that_logs_and_evaluates
-    EvalIn::Mock.new on_call: handle_call
+  def eval_in_that_logs_and_evaluates(logger)
+    EvalIn::Mock.new on_call: handle_call(logger)
   end
 
-  def handle_call
+  def handle_call(logger)
     lambda do |code, options|
-      $stdout.puts "EvalIn evaluating code:", indent(code)
+      logger.debug "EvalIn\n"\
+                   "  options: #{options.inspect}\n"\
+                   "  code:    #{code.inspect}"
       EvalIn::Mock.new(languages: languages)
                   .call(code, options)
-                  .tap { |result| $stdout.puts "EvalIn result:", indent(pretty_inspect result) }
+                  .tap { |result| logger.info "EvalIn result:\n#{indent(pretty_inspect result)}" }
     end
   end
 
