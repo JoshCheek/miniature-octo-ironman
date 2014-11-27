@@ -23,7 +23,15 @@ class MiniatureOctoIronman < Sinatra::Base
   Dir.mkdir File.dirname DATA_DIR unless Dir.exist? File.dirname DATA_DIR # <-- hack! I think this should just move into the manifest, not completely sure, but that should make it a lot more reliable (check the stupid before filter on the cukes)
   Dir.mkdir DATA_DIR              unless Dir.exist? DATA_DIR              # <-- hack!
 
-  set :markdown, layout_engine: :haml, layout: :layout
+  # This markdown configuration is untested, was spiking it while working on https://gist.github.com/JoshCheek/9b15d04e34847b09cf65
+  set :markdown, renderer: Class.new(Redcarpet::Render::HTML) {
+                   def block_code(code, language)
+                     %'<div class="noninteractive-code">#{code}</div>'
+                   end
+                 },
+                 fenced_code_blocks: true,
+                 layout_engine:      :haml,
+                 layout:             :layout
 
   get '/' do
     '<a href="/endpoints/new">Add an endpoint</a><br /><br />' +
