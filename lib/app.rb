@@ -80,7 +80,12 @@ class MiniatureOctoIronman < Sinatra::Base
     }
     if endpoint
       headers["SHA-for-file"] = endpoint.ref
-      markdown Moi::Manifest::RepoLoader.fetch_file(endpoint)
+      filename = endpoint.main_filename
+      filename += ".html" unless Tilt[filename]
+      template = Tilt.new filename do
+        Moi::Manifest::RepoLoader.fetch_file(endpoint)
+      end
+      haml(:layout, layout: false) { template.render }
     else
       redirect '/'
     end
